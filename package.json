@@ -1,0 +1,15 @@
+{
+  "name": "petsitter",
+  "private": true,
+  "version": "0.0.0",
+  "description": "static compiler",
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "broccoli": "~0.16.9",
+    "broccoli-funnel": "~1.0.1",
+    "broccoli-merge-trees": "~1.0.0",
+    "broccoli-less-single": "~0.6.2",
+    "bootstrap-less": "~3.3.8"
+  }
+}
