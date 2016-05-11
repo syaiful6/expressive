@@ -69,7 +69,7 @@ class Headers implements Countable, ArrayAccess
     public function keys()
     {
         return array_map(function ($elem) {
-           return $elem[0];
+            return $elem[0];
         }, $this->headers);
     }
 

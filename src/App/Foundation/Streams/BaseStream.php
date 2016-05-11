@@ -162,13 +162,14 @@ abstract class BaseStream implements StreamInterface, IteratorAggregate
      * @throws \InvalidArgumentException if size is not an integer
      * @throws \RuntimeException if the underlying stream closed
      */
-    public function readLine($size=-1)
+    public function readLine($size = -1)
     {
         if ($size === null) {
             $size = -1;
         } elseif (!is_integer($size)) {
             throw new InvalidArgumentException(
-                'size must be an integer');
+                'size must be an integer'
+            );
         }
         $res = '';
         while ($size < 0 || strlen($res) < $size) {
@@ -273,7 +274,9 @@ abstract class BaseStream implements StreamInterface, IteratorAggregate
     protected function _unsupportedOperation($name)
     {
         throw new RuntimeException(sprintf(
-            '"%s.%s() not supported', get_class(this), $name
+            '"%s.%s() not supported',
+            get_class(this),
+            $name
         ));
     }
 

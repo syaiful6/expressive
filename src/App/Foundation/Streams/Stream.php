@@ -71,14 +71,14 @@ class Stream extends BaseStream
         if (! $this->resource) {
             throw new RuntimeException(
                 'No resource available; cannot tell position'
-                );
+            );
         }
 
         $result = ftell($this->resource);
         if (! is_int($result)) {
             throw new RuntimeException(
                 'Error occurred during tell operation'
-                );
+            );
         }
 
         return $result;
@@ -148,7 +148,7 @@ class Stream extends BaseStream
         if (! $this->resource) {
             throw new RuntimeException(
                 'No resource available; cannot write'
-                );
+            );
         }
 
         if (! $this->isWritable()) {
@@ -188,7 +188,7 @@ class Stream extends BaseStream
      * @throws \InvalidArgumentException if size is not an integer
      * @throws \RuntimeException if the underlying stream closed
      */
-    public function readLine($size=-1)
+    public function readLine($size = -1)
     {
         if (! $this->resource) {
             return '';
@@ -275,7 +275,7 @@ class Stream extends BaseStream
         if ($error) {
             throw new InvalidArgumentException(
                 'Invalid stream reference provided'
-                );
+            );
         }
 
         if (! is_resource($resource) || 'stream' !== get_resource_type($resource)) {

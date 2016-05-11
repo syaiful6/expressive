@@ -87,7 +87,6 @@ class BufferedStream extends BaseStream
         $n = strlen($string);
         // the string is empty, so return 0 as we dont write anything
         if ($n === 0) {
-
             return 0;
         }
 
@@ -146,7 +145,8 @@ class BufferedStream extends BaseStream
         }
         if (!is_integer($length)) {
             throw new InvalidArgumentException(sprintf(
-                'read expect an integer, %s give', gettype($length)
+                'read expect an integer, %s give',
+                gettype($length)
             ));
         }
         if ($length < 0) {
@@ -183,7 +183,8 @@ class BufferedStream extends BaseStream
         $this->checkClosed();
         if (!is_integer($offset)) {
             throw new InvalidArgumentException(sprintf(
-                'read expect an integer, %s give', gettype($offset)
+                'read expect an integer, %s give',
+                gettype($offset)
             ));
         }
         if (! in_array($whence, [SEEK_CUR, SEEK_SET, SEEK_END])) {
@@ -218,12 +219,12 @@ class BufferedStream extends BaseStream
         $this->checkClosed();
         if (!is_integer($offset)) {
             throw new \InvalidArgumentException(sprintf(
-                'read expect an integer, %s give', gettype($offset)
+                'read expect an integer, %s give',
+                gettype($offset)
             ));
         }
 
         if ($size < 0) {
-
             throw new DomainException('negative truncate position');
         }
 
@@ -251,7 +252,6 @@ class BufferedStream extends BaseStream
         ];
 
         if ($key === null) {
-
             return $meta;
         }
 

@@ -26,9 +26,12 @@ class WelcomeView
     /**
      *
      */
-    public function __invoke(ServerRequestInterface $request,
-        ResponseInterface $response, callable $next = null)
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        callable $next = null
+    ) {
+
         $html = $this->templateRenderer->render('app::welcome');
         $stream = new Stream('php://memory', 'w+b');
         $stream->write($html);

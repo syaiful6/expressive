@@ -15,9 +15,11 @@ class SimpleHttpHandler extends BaseHttpHandler
     /**
      *
      */
-    public function __construct(StreamInterface $stdout = null,
-        StreamInterface $stderr = null)
-    {
+    public function __construct(
+        StreamInterface $stdout = null,
+        StreamInterface $stderr = null
+    ) {
+
         $this->stdout = $stdout ?: new Stream('php://output', 'wb');
         $this->stderr = $this->stderr  ?: new Stream('php://stderr', 'wb');
     }

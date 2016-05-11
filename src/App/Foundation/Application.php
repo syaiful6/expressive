@@ -18,9 +18,12 @@ class Application extends ExpressiveApp
     /**
      *
      */
-    public function __construct(RouterInterface $router,
-        ContainerInterface $container, callable $finalHandler = null)
-    {
+    public function __construct(
+        RouterInterface $router,
+        ContainerInterface $container,
+        callable $finalHandler = null
+    ) {
+
         parent::__construct($router, $container, $finalHandler);
     }
 
@@ -29,13 +32,18 @@ class Application extends ExpressiveApp
      */
     public function boot()
     {
-        return function (ServerRequestInterface $request,
-            callable $startResponse) {
+        return function (
+            ServerRequestInterface $request,
+            callable $startResponse
+) {
             $response = new Response();
             $response = $this($request, $response);
 
-            $status = sprintf('%d %s', $response->getStatusCode(),
-                $response->getReasonPhrase());
+            $status = sprintf(
+                '%d %s',
+                $response->getStatusCode(),
+                $response->getReasonPhrase()
+            );
             $headers = $response->getHeaders();
             $headers = zip(array_keys($headers), array_values($headers));
             // start!

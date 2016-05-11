@@ -19,7 +19,7 @@ class BufferedReader extends BaseStream
     /**
      *
      */
-    public function __construct($raw, $bufferSize=self::DEFAULT_BUFFER_SIZE)
+    public function __construct($raw, $bufferSize = self::DEFAULT_BUFFER_SIZE)
     {
         if (!$raw->isReadable()) {
             throw new RuntimeException('raw stream must be readable');
