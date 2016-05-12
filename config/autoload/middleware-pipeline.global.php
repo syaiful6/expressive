@@ -1,12 +1,14 @@
 <?php
 use Zend\Expressive\Container\ApplicationFactory;
 use Zend\Expressive\Helper;
+use App\Session;
 
 return [
     'dependencies' => [
         'factories' => [
             Helper\ServerUrlMiddleware::class => Helper\ServerUrlMiddlewareFactory::class,
             Helper\UrlHelperMiddleware::class => Helper\UrlHelperMiddlewareFactory::class,
+            Session\SessionMiddleware::class => Session\SessionMiddlewareFactory::class
         ],
     ],
     // This can be used to seed pre- and/or post-routing middleware
@@ -40,6 +42,7 @@ return [
                 // - pre-conditions
                 // - modifications to outgoing responses
                 Helper\ServerUrlMiddleware::class,
+                Session\SessionMiddleware::class
             ],
             'priority' => 10000,
         ],

@@ -1,6 +1,6 @@
 <?php
 
-namespace Petsitter\Foundation\Exceptions;
+namespace App\Foundation\Exceptions;
 
 class ImproperlyConfigured extends \Exception
 {

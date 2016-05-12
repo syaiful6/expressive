@@ -19,6 +19,7 @@ return [
         'factories' => [
             Application::class => AppFactory::class,
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
+            App\Session\Store::class => App\Session\StoreFactory::class,
         ],
     ],
 ];
