@@ -1,7 +1,5 @@
 <?php
 
-use App\Action;
-
 return [
     'dependencies' => [
         'invokables' => [
@@ -9,7 +7,7 @@ return [
         ],
         // Map middleware -> factories here
         'factories' => [
-            Action\WelcomeView::class => Action\WelcomeViewFactory::class
+            'App\Action\WelcomeView' => 'App\Action\WelcomeViewFactory'
         ],
     ],
 
@@ -17,7 +15,7 @@ return [
         [
             'name'  => 'welcome',
             'path'  => '/',
-            'middleware' => Action\WelcomeView::class,
+            'middleware' => 'App\Action\WelcomeView',
             'allowed_methods' => ['GET'],
         ],
     ],

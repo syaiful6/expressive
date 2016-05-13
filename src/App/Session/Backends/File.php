@@ -44,7 +44,7 @@ class File implements SessionBackendInterface
      */
     private function sessionIdToFile($id)
     {
-        return $this->path.'/'.$this->prefix.$sessionId;
+        return $this->path.'/'.$this->prefix.$id;
     }
 
     /**
@@ -87,7 +87,7 @@ class File implements SessionBackendInterface
         $dir = new \RecursiveIteratorIterator(\RecursiveDirectoryIterator($this->path));
         $skipdot = new \CallbackFilterIterator($dir, function ($it) use ($lifetime) {
             return !$it->isDot() && $it->isFile()
-                && strpos($file->getFilename(), $this->prefix) !== false
+                && strpos($it->getFilename(), $this->prefix) !== false
                 && $it->getMTime() <= (time() - $lifetime);
         });
         foreach ($skipdot as $file) {

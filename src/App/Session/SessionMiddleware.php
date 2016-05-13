@@ -2,12 +2,13 @@
 
 namespace App\Session;
 
+use Headbanger\Set;
+use App\DateTime\DateTime;
+use App\Foundation\Http\Cookie;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response\RedirectResponse;
 use App\Session\Exceptions\UpdateException;
-use App\Foundation\Http\Cookie;
-use Headbanger\Set;
 
 class SessionMiddleware
 {
@@ -38,7 +39,6 @@ class SessionMiddleware
             ? $cookies[$session->getName()]
             : '';
         $session->setId($sessionId);
-
         $request = $request->withAttribute('session', $session);
         // process the next middleware
         $response = $next($request, $response);
@@ -76,19 +76,18 @@ class SessionMiddleware
     {
         $cookie = new Cookie();
         $cookie[$name = $session->getName()] = $session->getId();
-        $cookie[$name]['expiry'] = $this->getCookieExpirationDate();
+        $cookie[$name]['expires'] = $this->getCookieExpirationDate();
         $cookie[$name]['path'] = $this->configs['path'] ?: '/';
         if (isset($this->configs['domain'])) {
             $cookie[$name]['domain'] = $this->configs['domain'];
         }
-        $cookie[$name]['secure'] = isset($this->configs['secure'])
-            ? $this->configs['secure']
-            : false;
-        if (isset($this->configs['httponly'])) {
-            $cookie[$name]['httponly'] = $this->configs['httponly'];
+        if (isset($this->configs['secure']) && $this->configs['secure']) {
+            $cookie[$name]['secure'] = true;
+        }
+        if (isset($this->configs['httponly']) && $this->configs['httponly']) {
+            $cookie[$name]['httponly'] = true;
         }
         $out = $cookie->getOutput(null, '', '');
-
         return $response->withAddedHeader('Set-Cookie', $out);
     }
 
@@ -102,11 +101,7 @@ class SessionMiddleware
         if ($configs['expire_on_close']) {
             return 0;
         }
-
-        $expiry = new \DateTime('now', new \DateTimeZone(\DateTimeZone::UTC));
-        $expiry->modify('+' . $config['lifetime'] . ' minute');
-
-        return $expiry;
+        return DateTime::now()->modify((int) $configs['lifetime'] . ' minute');
     }
 
     /**

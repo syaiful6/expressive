@@ -8,7 +8,8 @@ return [
         'factories' => [
             Helper\ServerUrlMiddleware::class => Helper\ServerUrlMiddlewareFactory::class,
             Helper\UrlHelperMiddleware::class => Helper\UrlHelperMiddlewareFactory::class,
-            Session\SessionMiddleware::class => Session\SessionMiddlewareFactory::class
+            Session\SessionMiddleware::class => Session\SessionMiddlewareFactory::class,
+            App\Database\CapsuleMiddleware::class => App\Database\CapsuleMiddlewareFactory::class
         ],
     ],
     // This can be used to seed pre- and/or post-routing middleware
@@ -41,6 +42,7 @@ return [
                 // - bootstrapping
                 // - pre-conditions
                 // - modifications to outgoing responses
+                App\Database\CapsuleMiddleware::class,
                 Helper\ServerUrlMiddleware::class,
                 Session\SessionMiddleware::class
             ],

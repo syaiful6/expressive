@@ -5,6 +5,8 @@ return [
 
     'config_cache_enabled' => false,
 
+    'timezone' => 'Asia/Jakarta',
+
     'zend-expressive' => [
         'error_handler' => [
             'template_404'   => 'error::404',

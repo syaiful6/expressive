@@ -17,7 +17,7 @@ class Cookie extends HashMap
     (                              # Optional group: there may not be a value.
     \s*=\s*                          # Equal Sign
     (?P<val>                         # Start of group 'val'
-    "(?:[^\\"]|\\.)*"                  # Any doublequoted string
+    "(?:[^\\\"]|\\.)*"                  # Any doublequoted string
     |                                  # or
     \w{3},\s[\w\d\s-]{9,11}\s[\d:]{8}\sGMT  # Special case for "expires" attr
     |                                  # or
@@ -65,14 +65,17 @@ REGEX;
     /**
      *
      */
-    public function getOutput($attrs = null, $header = "Set-Cookie:", $sep = "\r\n")
-    {
+    public function getOutput(
+        $attrs = null,
+        $header = 'Set-Cookie:',
+        $sep = "\r\n"
+    ) {
         $result = [];
         foreach ($this->items() as list($key, $value)) {
             array_push($result, $value->getOutput($attrs, $header));
         }
 
-        return join($sep, $result);
+        return implode($sep, $result);
     }
 
     /**
@@ -99,7 +102,7 @@ REGEX;
         $reserverd = explode(' ', 'expires path comment domain max-age secure httponly version');
         $secure = explode(' ', 'secure httponly');
 
-        if (preg_match('~'. self::COOKIE_PATTERN . '~g', $str, $matches)) {
+        if (preg_match('~'.self::COOKIE_PATTERN.'~g', $str, $matches)) {
             foreach ($matches as $match) {
                 list($key, $val) = [$match['key'], $match['val']];
                 if ($key[0] === '$') {
@@ -108,7 +111,7 @@ REGEX;
                     }
                 } elseif (in_array(strtolower($key), $reserverd)) {
                     if ($morshel) {
-                        if (!$value) {
+                        if (! $value) {
                             if (in_array(strtolower($key), $flags)) {
                                 $morshel[$key] = true;
                             }

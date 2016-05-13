@@ -30,6 +30,10 @@ if (is_file($cachedConfigFile)) {
     }
 }
 
+// set this earlier
+date_default_timezone_set($config['timezone']);
+mb_internal_encoding('UTF-8');
+
 // Return an ArrayObject so we can inject the config as a service in Aura.Di
 // and still use array checks like ``is_array``.
 return new ArrayObject($config, ArrayObject::ARRAY_AS_PROPS);

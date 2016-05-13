@@ -20,6 +20,8 @@ class Store extends MutableMapping
 
     protected $name;
 
+    protected $isLoaded = false;
+
     /**
      *
      */
@@ -60,6 +62,9 @@ class Store extends MutableMapping
      */
     public function count()
     {
+        if (!$this->isLoaded) {
+            $this->loadFromBackend();
+        }
         return count($this->attributes);
     }
 
@@ -68,6 +73,9 @@ class Store extends MutableMapping
      */
     public function contains($item)
     {
+        if (!$this->isLoaded) {
+            $this->loadFromBackend();
+        }
         return $this->offsetExists($item);
     }
 
@@ -76,7 +84,7 @@ class Store extends MutableMapping
      */
     public function pop($key, $default = null)
     {
-        if (!$this->accessed) {
+        if (!$this->isLoaded) {
             $this->loadFromBackend();
         }
         $this->modified = $this->modified || $this->contains($key);
@@ -96,7 +104,7 @@ class Store extends MutableMapping
      */
     public function getIterator()
     {
-        if (!$this->accessed) {
+        if (!$this->isLoaded) {
             $this->loadFromBackend();
         }
 
@@ -108,7 +116,7 @@ class Store extends MutableMapping
      */
     public function offsetSet($key, $value)
     {
-        if (!$this->accessed) {
+        if (!$this->isLoaded) {
             $this->loadFromBackend();
         }
         $this->modified = true;
@@ -120,7 +128,7 @@ class Store extends MutableMapping
      */
     public function offsetUnset($key)
     {
-        if (!$this->accessed) {
+        if (!$this->isLoaded) {
             $this->loadFromBackend();
         }
         $this->modified = true;
@@ -132,7 +140,7 @@ class Store extends MutableMapping
      */
     public function offsetGet($key)
     {
-        if (!$this->accessed) {
+        if (!$this->isLoaded) {
             $this->loadFromBackend();
         }
         return $this->attributes[$key];
@@ -143,6 +151,9 @@ class Store extends MutableMapping
      */
     private function loadFromBackend()
     {
+        if ($this->isLoaded) {
+            return;
+        }
         $this->accessed = true;
         $data = $this->backend->read($this->getId());
         if ($data) {
@@ -152,6 +163,7 @@ class Store extends MutableMapping
                 $this->attributes->update(new ArrayList($data));
             }
         }
+        $this->isLoaded = true;
     }
 
     /**
