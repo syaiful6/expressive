@@ -156,6 +156,14 @@ class SessionMiddleware
     }
 
     /**
+     *
+     */
+    protected function getSessionLifetimeInSeconds()
+    {
+        return $this->configs['lifetime'] * 60;
+    }
+
+    /**
      * Determine if the configuration odds hit the lottery.
      *
      * @param  array  $config

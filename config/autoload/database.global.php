@@ -6,17 +6,23 @@ use function App\Foundation\env;
 return [
     'dependencies' => [
         'invokables' => [
-            'App\Database\MigrationCreator'
+            'App\Database\MigrationCreator',
         ],
 
         'factories' => [
-            Illuminate\Database\ConnectionResolverInterface::class => Database\ConnectionResolverFactory::class,
-            Illuminate\Database\ConnectionInterface::class => Database\ConnectionResolverFactory::class,
-            'Illuminate\Database\Migrations\MigrationRepositoryInterface' => 'App\Database\DatabaseMigrationRepositoryFactory',
+            Illuminate\Database\ConnectionResolverInterface::class =>
+                Database\ConnectionResolverFactory::class,
+            Illuminate\Database\ConnectionInterface::class =>
+                Database\ConnectionResolverFactory::class,
+            'Illuminate\Database\Migrations\MigrationRepositoryInterface' =>
+                'App\Database\DatabaseMigrationRepositoryFactory',
             'App\Database\Migrator' => 'App\Database\MigratorFactory',
-            'App\Database\Console\Commands\InstallCommand' => 'App\Database\Console\ConsoleFactory',
-            'App\Database\Console\Commands\MakeMigration' => 'App\Database\Console\ConsoleFactory',
-            'App\Database\Console\Commands\Migrate' => 'App\Database\Console\ConsoleFactory',
+            'App\Database\Console\Commands\InstallCommand' =>
+                'App\Database\Console\ConsoleFactory',
+            'App\Database\Console\Commands\MakeMigration' =>
+                'App\Database\Console\ConsoleFactory',
+            'App\Database\Console\Commands\Migrate' =>
+                'App\Database\Console\ConsoleFactory',
         ]
     ],
 

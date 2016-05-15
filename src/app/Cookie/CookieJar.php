@@ -24,7 +24,7 @@ class CookieJar implements QueueingCookieFactory
     /**
      * The cookies
      *
-     * @var App\Foundation\Http\Cookie
+     * @var App\Cookie\Cookie
      */
     protected $cookies;
 
@@ -39,12 +39,31 @@ class CookieJar implements QueueingCookieFactory
     /**
      *
      */
-    public function make($name, $value, $expires = null, $maxAge = null, $path = null, $domain = null, $secure = false, $httpOnly = true)
-    {
+    public function make(
+        $name,
+        $value,
+        $expires = null,
+        $maxAge = null,
+        $path = null,
+        $domain = null,
+        $secure = false,
+        $httpOnly = true
+    ) {
+
         $name = $args[0];
         $oldCookie = $this->cookies;
         $this->cookies = new Cookie();
-        $this->queue($name, $value, $expires = null, $maxAge = null, $path = null, $domain = null, $secure = false, $httpOnly = true);
+        $this->queue(
+            $name,
+            $value,
+            $expires,
+            $maxAge,
+            $path,
+            $domain,
+            $secure,
+            $httpOnly
+        );
+
         $output = $this->cookies->getOutput(null, '', '');
         $this->cookies = $oldCookie;
         return $output;
@@ -61,16 +80,30 @@ class CookieJar implements QueueingCookieFactory
     /**
      *
      */
-    public function forever($name, $value, $path = null, $domain = null, $secure = false, $httpOnly = true)
-    {
+    public function forever(
+        $name,
+        $value,
+        $path = null,
+        $domain = null,
+        $secure = false,
+        $httpOnly = true
+    ) {
         return $this->make($name, $value, 2628000, null, $path, $domain, $secure, $httpOnly);
     }
 
     /**
      *
      */
-    public function queue($name, $value, $expires = null, $maxAge = null, $path = null, $domain = null, $secure = false, $httpOnly = true)
-    {
+    public function queue(
+        $name,
+        $value,
+        $expires = null,
+        $maxAge = null,
+        $path = null,
+        $domain = null,
+        $secure = false,
+        $httpOnly = true
+    ) {
         list($path, $domain, $secure) = $this->getPathAndDomain($path, $domain, $secure);
         $this->cookies[$name] = $value;
 

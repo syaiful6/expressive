@@ -420,8 +420,13 @@ abstract class Command extends SymfonyCommand
      * @param  bool    $multiple
      * @return string
      */
-    public function choice($question, array $choices, $default = null, $attempts = null, $multiple = null)
-    {
+    public function choice(
+        $question,
+        array $choices,
+        $default = null,
+        $attempts = null,
+        $multiple = null
+    ) {
         $question = new ChoiceQuestion($question, $choices, $default);
 
         $question->setMaxAttempts($attempts)->setMultiselect($multiple);

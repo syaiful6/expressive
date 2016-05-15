@@ -6,11 +6,20 @@ use App\Session;
 return [
     'dependencies' => [
         'factories' => [
-            Helper\ServerUrlMiddleware::class => Helper\ServerUrlMiddlewareFactory::class,
-            Helper\UrlHelperMiddleware::class => Helper\UrlHelperMiddlewareFactory::class,
-            Session\SessionMiddleware::class => Session\SessionMiddlewareFactory::class,
-            App\Cookie\QueueMiddleware::class => App\Cookie\QueueMiddlewareFactory::class,
-            App\Database\CapsuleMiddleware::class => App\Database\CapsuleMiddlewareFactory::class
+            Helper\ServerUrlMiddleware::class =>
+                Helper\ServerUrlMiddlewareFactory::class,
+            Helper\UrlHelperMiddleware::class =>
+                Helper\UrlHelperMiddlewareFactory::class,
+            Session\SessionMiddleware::class
+                => Session\SessionMiddlewareFactory::class,
+            App\Cookie\QueueMiddleware::class
+                => App\Cookie\QueueMiddlewareFactory::class,
+            App\Database\CapsuleMiddleware::class =>
+                App\Database\CapsuleMiddlewareFactory::class,
+            App\Middleware\Csrf::class =>
+                App\Middleware\GenericMiddlewareFactory::class,
+            App\Middleware\ContextProcessor::class =>
+                App\Middleware\GenericMiddlewareFactory::class,
         ],
     ],
     // This can be used to seed pre- and/or post-routing middleware
@@ -60,6 +69,8 @@ return [
                 // - etc.
                 App\Cookie\QueueMiddleware::class,
                 Session\SessionMiddleware::class,
+                App\Middleware\Csrf::class,
+                App\Middleware\ContextProcessor::class,
                 ApplicationFactory::DISPATCH_MIDDLEWARE,
             ],
             'priority' => 1,

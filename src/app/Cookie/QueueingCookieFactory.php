@@ -17,7 +17,16 @@ interface QueueingCookieFactory extends CookieFactory
      * @param  bool    $httpOnly*
      * @return void
      */
-    public function queue($name, $value, $expires = null, $maxAge = null, $path = null, $domain = null, $secure = false, $httpOnly = true);
+    public function queue(
+        $name,
+        $value,
+        $expires = null,
+        $maxAge = null,
+        $path = null,
+        $domain = null,
+        $secure = false,
+        $httpOnly = true
+    );
 
     /**
      * Remove the given cookie name from queue

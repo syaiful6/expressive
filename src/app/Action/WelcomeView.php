@@ -31,7 +31,6 @@ class WelcomeView
         ResponseInterface $response,
         callable $next = null
     ) {
-        $session = $request->getAttribute('session');
         $html = $this->templateRenderer->render('app::welcome');
         $stream = new Stream('php://memory', 'w+b');
         $stream->write($html);

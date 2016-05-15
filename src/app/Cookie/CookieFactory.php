@@ -22,7 +22,16 @@ interface CookieFactory
      * @return string
      *
      */
-    public function make($name, $value, $expires = null, $maxAge = null, $path = null, $domain = null, $secure = false, $httpOnly = true);
+    public function make(
+        $name,
+        $value,
+        $expires = null,
+        $maxAge = null,
+        $path = null,
+        $domain = null,
+        $secure = false,
+        $httpOnly = true
+    );
 
     /**
      * Create a cookie that lasts "forever" (five years). The string returned can
@@ -36,7 +45,14 @@ interface CookieFactory
      * @param  bool    $httpOnly
      * @return string
      */
-    public function forever($name, $value, $path = null, $domain = null, $secure = false, $httpOnly = true);
+    public function forever(
+        $name,
+        $value,
+        $path = null,
+        $domain = null,
+        $secure = false,
+        $httpOnly = true
+    );
 
     /**
      * Expire the given cookie. This also return string suitable for use on http

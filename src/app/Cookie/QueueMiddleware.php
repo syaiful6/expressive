@@ -34,7 +34,10 @@ class QueueMiddleware
         }
 
         $cookies = array_merge($cookies, $this->cookieJar->getQueuedCookies());
+        if (count($cookies) > 0) {
+            return $response->withHeader('Set-Cookie', $cookies);
+        }
 
-        return $response->withHeader('Set-Cookie', $cookies);
+        return $response;
     }
 }

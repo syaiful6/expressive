@@ -119,17 +119,23 @@ class Migrate extends Command
     protected function getOptions()
     {
         return [
-            ['database', null, InputOption::VALUE_OPTIONAL, 'The database connection to use.'],
+            ['database', null, InputOption::VALUE_OPTIONAL,
+                'The database connection to use.'],
 
-            ['force', null, InputOption::VALUE_NONE, 'Force the operation to run when in production.'],
+            ['force', null, InputOption::VALUE_NONE,
+                'Force the operation to run when in production.'],
 
-            ['path', null, InputOption::VALUE_OPTIONAL, 'The path of migrations files to be executed.'],
+            ['path', null, InputOption::VALUE_OPTIONAL,
+                'The path of migrations files to be executed.'],
 
-            ['pretend', null, InputOption::VALUE_NONE, 'Dump the SQL queries that would be run.'],
+            ['pretend', null, InputOption::VALUE_NONE,
+                'Dump the SQL queries that would be run.'],
 
-            ['seed', null, InputOption::VALUE_NONE, 'Indicates if the seed task should be re-run.'],
+            ['seed', null, InputOption::VALUE_NONE,
+                'Indicates if the seed task should be re-run.'],
 
-            ['step', null, InputOption::VALUE_NONE, 'Force the migrations to be run so they can be rolled back individually.'],
+            ['step', null, InputOption::VALUE_NONE,
+                'Force the migrations to be run so they can be rolled back individually.'],
         ];
     }
 }

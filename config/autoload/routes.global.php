@@ -16,7 +16,7 @@ return [
             'name'  => 'welcome',
             'path'  => '/',
             'middleware' => 'App\Action\WelcomeView',
-            'allowed_methods' => ['GET'],
+            'allowed_methods' => ['GET', 'POST'],
         ],
     ],
 ];

@@ -20,7 +20,14 @@ return [
             Application::class => AppFactory::class,
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
             App\Session\Store::class => App\Session\StoreFactory::class,
-            'App\Cookie\QueueingCookieFactory' => 'App\Cookie\CookieJarFactory'
+            'App\Cookie\QueueingCookieFactory' => 'App\Cookie\CookieJarFactory',
+            'App\Translation\LoaderInterface' => 'App\Translation\TranslatorFactory',
+            'Symfony\Component\Translation\TranslatorInterface' =>
+                'App\Translation\TranslatorFactory',
+            'App\Validation\PresenceVerifierInterface' =>
+                'App\Validation\ValidationServiceFactory',
+            'Illuminate\Contracts\Validation\Factory' =>
+                'App\Validation\ValidationServiceFactory'
         ],
     ],
 ];

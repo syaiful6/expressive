@@ -2,6 +2,9 @@
 
 return [
     'dependencies' => [
+        'invokables' => [
+            'App\Foundation\ContextProcessor\CsrfContexProcessor',
+        ],
         'factories' => [
             'Zend\Expressive\FinalHandler' =>
                 Zend\Expressive\Container\TemplatedErrorHandlerFactory::class,
@@ -17,6 +20,9 @@ return [
             'app'    => ['templates/app'],
             'layout' => ['templates/layout'],
             'error'  => ['templates/error'],
+        ],
+        'context_processors' => [
+            'App\Foundation\ContextProcessor\CsrfContexProcessor',
         ],
     ],
 
