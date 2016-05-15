@@ -20,6 +20,7 @@ return [
             Application::class => AppFactory::class,
             Helper\UrlHelper::class => Helper\UrlHelperFactory::class,
             App\Session\Store::class => App\Session\StoreFactory::class,
+            'App\Cookie\QueueingCookieFactory' => 'App\Cookie\CookieJarFactory'
         ],
     ],
 ];

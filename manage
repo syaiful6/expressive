@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+require 'vendor/autoload.php';
+
+/** @var \Interop\Container\ContainerInterface $container */
+$container = require 'config/container.php';
+$app = new App\Console\Application($container);
+$app->run();

@@ -9,6 +9,7 @@ return [
             Helper\ServerUrlMiddleware::class => Helper\ServerUrlMiddlewareFactory::class,
             Helper\UrlHelperMiddleware::class => Helper\UrlHelperMiddlewareFactory::class,
             Session\SessionMiddleware::class => Session\SessionMiddlewareFactory::class,
+            App\Cookie\QueueMiddleware::class => App\Cookie\QueueMiddlewareFactory::class,
             App\Database\CapsuleMiddleware::class => App\Database\CapsuleMiddlewareFactory::class
         ],
     ],
@@ -44,7 +45,6 @@ return [
                 // - modifications to outgoing responses
                 App\Database\CapsuleMiddleware::class,
                 Helper\ServerUrlMiddleware::class,
-                Session\SessionMiddleware::class
             ],
             'priority' => 10000,
         ],
@@ -58,6 +58,8 @@ return [
                 // - route-based authentication
                 // - route-based validation
                 // - etc.
+                App\Cookie\QueueMiddleware::class,
+                Session\SessionMiddleware::class,
                 ApplicationFactory::DISPATCH_MIDDLEWARE,
             ],
             'priority' => 1,

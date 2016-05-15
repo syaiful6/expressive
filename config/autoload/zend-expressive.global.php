@@ -13,4 +13,10 @@ return [
             'template_error' => 'error::error',
         ],
     ],
+
+    'commands' => [
+        'App\Database\Console\Commands\InstallCommand',
+        'App\Database\Console\Commands\MakeMigration',
+        'App\Database\Console\Commands\Migrate',
+    ]
 ];

@@ -1,4 +1,7 @@
 .idea
+config/.env
+config/.env-*
 composer.phar
+composer.lock
 /vendor
 /node_modules

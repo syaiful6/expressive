@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es5",
+    "declaration": true,
+    "sourceMap": true,
+    "outFile": "../../public/assets/app.js",
+    "jsx": "react",
+    "reactNamespace": "m"
+  }
+}

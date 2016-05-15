@@ -2,6 +2,8 @@
 
 use Zend\Stdlib\ArrayUtils;
 use Zend\Stdlib\Glob;
+use Dotenv\Dotenv;
+use Dotenv\Exception\InvalidPathException;
 
 /**
  * Configuration files are loaded in a specific order. First ``global.php``, then ``*.global.php``.
@@ -19,6 +21,13 @@ if (is_file($cachedConfigFile)) {
     // Try to load the cached config
     $config = include $cachedConfigFile;
 } else {
+    // load dotenv
+    try {
+        (new Dotenv('.env-dev'))->load();
+    } catch (InvalidPathException $e) {
+        //
+    }
+
     // Load configuration from autoload path
     foreach (Glob::glob('config/autoload/{{,*.}global,{,*.}local}.php', Glob::GLOB_BRACE) as $file) {
         $config = ArrayUtils::merge($config, include $file);
