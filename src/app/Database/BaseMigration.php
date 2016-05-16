@@ -30,7 +30,7 @@ abstract class BaseMigration
      */
     protected function getSchemaBuilder()
     {
-        $this->resolver->connection()->getSchemaBuilder()
+        return $this->resolver->connection()->getSchemaBuilder();
     }
 
     /**

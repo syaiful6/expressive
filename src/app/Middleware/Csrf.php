@@ -5,7 +5,6 @@ namespace App\Middleware;
 use Headbanger\Set;
 use OutOfBoundsException;
 use Zend\Diactoros\Uri;
-use App\Session\Store;
 use App\Cookie\CookieFactory;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,19 +24,9 @@ class Csrf
     protected $cookiejar;
 
     /**
-     *
-     */
-    protected $session;
-
-    /**
     *
     */
-    public function __construct(
-        Store $session,
-        CookieFactory $cookiejar,
-        array $configs
-    ) {
-        $this->session = $session;
+    public function __construct(CookieFactory $cookiejar, array $configs) {
         $this->cookiejar = $cookiejar;
         $this->configs = $configs;
     }
@@ -58,15 +47,20 @@ class Csrf
         ResponseInterface $response,
         callable $next
     ) {
-
+        $session = $request->getAttribute('session', false);
+        if (!$session) {
+            throw new \RuntimeException(
+                'Csrf middleware requires session middleware. And it should ran before it.'
+            );
+        }
         try {
-            $csrftoken = $this->sanitizeToken($this->session['_CSRF_TOKEN']);
+            $csrftoken = $this->sanitizeToken($session['_CSRF_TOKEN']);
             $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
         } catch (OutOfBoundsException $e) {
             // try to get from cookie
             $cookies = $request->getCookieParams();
             if (isset($cookies[static::CSRF_COOKIE_NAME])) {
-                $csrftoken = $this->session['_CSRF_TOKEN'] =
+                $csrftoken = $session['_CSRF_TOKEN'] =
                     $this->sanitizeToken($cookies[static::CSRF_COOKIE_NAME]);
                 $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
             } else {
@@ -74,7 +68,7 @@ class Csrf
                 // set for next
                 $request = $request->withAttribute(
                     'CSRF_COOKIE',
-                    $this->session['_CSRF_TOKEN'] = $this->getNewCsrfToken()
+                    $session['_CSRF_TOKEN'] = $this->getNewCsrfToken()
                 );
             }
         }
@@ -126,7 +120,7 @@ class Csrf
             }
         }
 
-        $response = $this->addCookieToResponse($next($request, $response));
+        $response = $this->addCookieToResponse($session, $next($request, $response));
 
         return $this->patchVaryHeader($response);
     }
@@ -134,11 +128,11 @@ class Csrf
     /**
      * Add cookie to response so it's easier for our frontend developer
      */
-    protected function addCookieToResponse(ResponseInterface $response)
+    protected function addCookieToResponse($session, ResponseInterface $response)
     {
         $cookie = $this->cookiejar->make(
             self::CSRF_COOKIE_NAME,
-            $this->session->get('_CSRF_TOKEN', $this->getNewCsrfToken()),
+            $session->get('_CSRF_TOKEN', $this->getNewCsrfToken()),
             null,
             self::CSRF_COOKIE_AGE,
             $this->configs['path'],
