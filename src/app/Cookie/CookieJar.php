@@ -47,10 +47,8 @@ class CookieJar implements QueueingCookieFactory
         $path = null,
         $domain = null,
         $secure = false,
-        $httpOnly = true
+        $httpOnly = false
     ) {
-
-        $name = $args[0];
         $oldCookie = $this->cookies;
         $this->cookies = new Cookie();
         $this->queue(
@@ -86,7 +84,7 @@ class CookieJar implements QueueingCookieFactory
         $path = null,
         $domain = null,
         $secure = false,
-        $httpOnly = true
+        $httpOnly = false
     ) {
         return $this->make($name, $value, 2628000, null, $path, $domain, $secure, $httpOnly);
     }
@@ -102,7 +100,7 @@ class CookieJar implements QueueingCookieFactory
         $path = null,
         $domain = null,
         $secure = false,
-        $httpOnly = true
+        $httpOnly = false
     ) {
         list($path, $domain, $secure) = $this->getPathAndDomain($path, $domain, $secure);
         $this->cookies[$name] = $value;

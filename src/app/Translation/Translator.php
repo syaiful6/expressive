@@ -203,7 +203,10 @@ class Translator extends NamespacedItemResolver implements TranslatorInterface
 
         $replace['count'] = $number;
 
-        return $this->makeReplacements($this->getSelector()->choose($line, $number, $locale), $replace);
+        return $this->makeReplacements(
+            $this->getSelector()->choose($line, $number, $locale),
+            $replace
+        );
     }
 
     /**

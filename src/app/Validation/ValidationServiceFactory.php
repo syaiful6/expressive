@@ -2,6 +2,7 @@
 
 namespace App\Validation;
 
+use Interop\Container\ContainerInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Contracts\Validation\Factory as FactoryContract;
@@ -28,7 +29,7 @@ class ValidationServiceFactory
     /**
      *
      */
-    protected function createValidationFactory($container)
+    protected function createValidationFactory(ContainerInterface $container)
     {
         if ($container->has(TranslatorInterface::class)) {
             $translator = $container->get(TranslatorInterface::class);
@@ -42,7 +43,7 @@ class ValidationServiceFactory
     /**
      *
      */
-    protected function createPresenceVerifier($container)
+    protected function createPresenceVerifier(ContainerInterface $container)
     {
         if ($container->has(ConnectionResolverInterface::class)) {
             return new DatabasePresenceVerifier(

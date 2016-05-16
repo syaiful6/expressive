@@ -20,6 +20,8 @@ return [
                 App\Middleware\GenericMiddlewareFactory::class,
             App\Middleware\ContextProcessor::class =>
                 App\Middleware\GenericMiddlewareFactory::class,
+            'App\Foundation\Http\WebMiddleware' =>
+                App\Foundation\Http\WebMiddlewareFactory::class,
         ],
     ],
     // This can be used to seed pre- and/or post-routing middleware
@@ -67,10 +69,7 @@ return [
                 // - route-based authentication
                 // - route-based validation
                 // - etc.
-                App\Cookie\QueueMiddleware::class,
-                Session\SessionMiddleware::class,
-                App\Middleware\Csrf::class,
-                App\Middleware\ContextProcessor::class,
+                'App\Foundation\Http\WebMiddleware',
                 ApplicationFactory::DISPATCH_MIDDLEWARE,
             ],
             'priority' => 1,

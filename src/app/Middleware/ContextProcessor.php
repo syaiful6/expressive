@@ -61,7 +61,7 @@ class ContextProcessor
                     $processor
                 ));
             }
-            list($request, $context) = $this->getIterableContext($processor, $request);
+            $context = $this->getIterableContext($processor, $request);
             foreach ($context as $k => $v) {
                 $template->addDefaultParam(
                     TemplateRendererInterface::TEMPLATE_ALL,
@@ -79,9 +79,7 @@ class ContextProcessor
     protected function getIterableContext($processor, $request)
     {
         try {
-            list($request, $context) = $processor($request);
-
-            return [$request, iter($context)];
+            return iter($processor($request));
         } catch (\InvalidArgumentException $e) {
             throw new \RuntimeException(
                 sprintf(

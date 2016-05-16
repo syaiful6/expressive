@@ -137,21 +137,21 @@ class Morshel extends HashMap
             if ($key === 'expires') {
                 $exp = false;
                 if ($value instanceof \DateTime
-                    || $expire instanceof \DateTimeInterface) {
-                    $exp = $value->format('U');
-                } elseif (! is_numeric($key)) {
+                    || $value instanceof \DateTimeInterface) {
+                    $exp = gmdate('D, d-M-Y H:i:s T', $value->format('U'));
+                } elseif (! is_numeric($value)) {
                     $totime = strtotime($value);
                     if (false !== $totime && -1 !== $totime) {
                         $exp = gmdate('D, d-M-Y H:i:s T', $totime);
                     }
-                } elseif (is_numeric($key)) {
+                } elseif (is_numeric($value)) {
                     $exp = gmdate('D, d-M-Y H:i:s T', $value);
                 }
                 if ($exp) {
                     array_push($result, sprintf(
                         '%s=%s',
                         $this->reserved[$key],
-                        gmdate('D, d-M-Y H:i:s T', $exp)
+                        $exp
                     ));
                 } else {
                     throw new CookieException(sprintf(

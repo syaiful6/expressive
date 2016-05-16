@@ -12,10 +12,10 @@ class CsrfContexProcessor
      */
     public function __invoke(ServerRequestInterface $request)
     {
-        list($request, $token) = Csrf::getToken($request);
+        $token = Csrf::getToken($request);
         if (!$token) {
             $token = 'NOTPROVIDED'; // for debugging
         }
-        return [$request, ['csrftoken' => $token]];
+        return ['csrftoken' => $token];
     }
 }

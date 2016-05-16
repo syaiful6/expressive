@@ -2,12 +2,14 @@
 
 namespace App\Middleware;
 
+use Headbanger\Set;
+use OutOfBoundsException;
+use Zend\Diactoros\Uri;
+use App\Session\Store;
+use App\Cookie\CookieFactory;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Illuminate\Support\Str;
-use App\Cookie\CookieFactory;
-use Zend\Diactoros\Uri;
-use Headbanger\Set;
 
 class Csrf
 {
@@ -23,10 +25,19 @@ class Csrf
     protected $cookiejar;
 
     /**
+     *
+     */
+    protected $session;
+
+    /**
     *
     */
-    public function __construct(CookieFactory $cookiejar, array $configs)
-    {
+    public function __construct(
+        Store $session,
+        CookieFactory $cookiejar,
+        array $configs
+    ) {
+        $this->session = $session;
         $this->cookiejar = $cookiejar;
         $this->configs = $configs;
     }
@@ -47,13 +58,25 @@ class Csrf
         ResponseInterface $response,
         callable $next
     ) {
-        $cookies = $request->getCookieParams();
-        if (isset($cookies[static::CSRF_COOKIE_NAME])) {
-            $csrftoken = $this->sanitizeToken($cookies[static::CSRF_COOKIE_NAME]);
+
+        try {
+            $csrftoken = $this->sanitizeToken($this->session['_CSRF_TOKEN']);
             $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
-        } else {
-            $csrftoken = false;
-            $request = $request->withAttribute('CSRF_COOKIE', static::getNewCsrfToken());
+        } catch (OutOfBoundsException $e) {
+            // try to get from cookie
+            $cookies = $request->getCookieParams();
+            if (isset($cookies[static::CSRF_COOKIE_NAME])) {
+                $csrftoken = $this->session['_CSRF_TOKEN'] =
+                    $this->sanitizeToken($cookies[static::CSRF_COOKIE_NAME]);
+                $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
+            } else {
+                $csrftoken = '';
+                // set for next
+                $request = $request->withAttribute(
+                    'CSRF_COOKIE',
+                    $this->session['_CSRF_TOKEN'] = $this->getNewCsrfToken()
+                );
+            }
         }
 
         if (!in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS', 'TRACE'])) {
@@ -103,31 +126,28 @@ class Csrf
             }
         }
 
-        $response = $next($request, $response);
+        $response = $this->addCookieToResponse($next($request, $response));
 
-        if (!$request->getAttribute('CSRF_COOKIE_USED')) {
-            return $response;
-        }
+        return $this->patchVaryHeader($response);
+    }
 
-        if (!$request->getAttribute('CSRF_COOKIE')) {
-            return $response;
-        }
-
+    /**
+     * Add cookie to response so it's easier for our frontend developer
+     */
+    protected function addCookieToResponse(ResponseInterface $response)
+    {
         $cookie = $this->cookiejar->make(
             self::CSRF_COOKIE_NAME,
-            $request->getAttribute('CSRF_COOKIE'),
+            $this->session->get('_CSRF_TOKEN', $this->getNewCsrfToken()),
             null,
             self::CSRF_COOKIE_AGE,
-            $this->settings['path'],
-            $this->settings['domain'],
-            $this->settings['secure'],
-            false
+            $this->configs['path'],
+            $this->configs['domain'],
+            $this->configs['secure'],
+            $this->configs['httponly']
         );
-        $response = $this->patchVaryHeader($response);
-        return $response
-            ->withAddedHeader('Set-Cookie', $cookie)
-            ->withoutAttribute('CSRF_COOKIE')
-            ->withoutAttribute('CSRF_COOKIE_USED');
+
+        return $response->withAddedHeader('Set-Cookie', $cookie);
     }
 
     /**
@@ -191,17 +211,7 @@ class Csrf
     /**
      *
      */
-    public static function rotateToken(ServerRequestInterface $request)
-    {
-        return $request
-            ->withAttribute('CSRF_COOKIE_USED', true)
-            ->withAttribute('CSRF_COOKIE', self::getNewCsrfToken());
-    }
-
-    /**
-     *
-     */
-    protected static function getNewCsrfToken()
+    protected function getNewCsrfToken()
     {
         return Str::random(static::CSRF_KEY_LENGTH);
     }
@@ -211,8 +221,7 @@ class Csrf
      */
     public static function getToken(ServerRequestInterface $request)
     {
-        $request = $request->withAttribute('CSRF_COOKIE_USED', true);
-        return [$request, $request->getAttribute('CSRF_COOKIE')];
+        return $request->getAttribute('CSRF_COOKIE');
     }
 
     /**
@@ -221,11 +230,11 @@ class Csrf
     protected function sanitizeToken($token)
     {
         if (strlen($token) > static::CSRF_KEY_LENGTH) {
-            return static::getNewCsrfToken();
+            return $this->getNewCsrfToken();
         }
         $token = preg_replace('/[^a-zA-Z0-9]+/', '', $token);
         if ($token === '') {
-            return static::getNewCsrfToken();
+            return $this->getNewCsrfToken();
         }
 
         return $token;

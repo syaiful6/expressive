@@ -17,5 +17,7 @@ return [
         'domain' => null,
 
         'secure' => false,
+
+        'httponly' => false,
     ]
 ];

@@ -30,7 +30,7 @@ interface CookieFactory
         $path = null,
         $domain = null,
         $secure = false,
-        $httpOnly = true
+        $httpOnly = false
     );
 
     /**
@@ -51,7 +51,7 @@ interface CookieFactory
         $path = null,
         $domain = null,
         $secure = false,
-        $httpOnly = true
+        $httpOnly = false
     );
 
     /**

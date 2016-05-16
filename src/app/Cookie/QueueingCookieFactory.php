@@ -25,7 +25,7 @@ interface QueueingCookieFactory extends CookieFactory
         $path = null,
         $domain = null,
         $secure = false,
-        $httpOnly = true
+        $httpOnly = false
     );
 
     /**

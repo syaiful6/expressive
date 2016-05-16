@@ -88,6 +88,7 @@ class File implements SessionBackendInterface
         $files = Finder::create()
                     ->in($this->path)
                     ->files()
+                    ->name($this->prefix.'*')
                     ->ignoreDotFiles(true)
                     ->date('<= now - '.$lifetime.' seconds');
 

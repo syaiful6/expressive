@@ -71,7 +71,7 @@ REGEX;
         $sep = "\r\n"
     ) {
         $result = [];
-        foreach ($this->items() as list($key, $value)) {
+        foreach ($this->values() as $value) {
             array_push($result, $value->getOutput($attrs, $header));
         }
 

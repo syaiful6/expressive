@@ -4,7 +4,7 @@ namespace App\Session;
 
 use Headbanger\Set;
 use App\DateTime\DateTime;
-use App\Cookie;
+use App\Cookie\Cookie;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Response\RedirectResponse;

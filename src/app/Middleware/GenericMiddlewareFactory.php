@@ -2,9 +2,10 @@
 
 namespace App\Middleware;
 
+use App\Cookie;
+use App\Session\Store;
 use Interop\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
-use App\Cookie;
 
 class GenericMiddlewareFactory
 {
@@ -44,7 +45,14 @@ class GenericMiddlewareFactory
             );
         }
 
-        return new Csrf($cookieJar, $setting);
+        if (!$container->has(Store::class)) {
+            throw new ImproperlyConfigured(sprintf(
+                '%s not configured on container. Can\'t create csrf Middleware'
+            ));
+        }
+        $store = $container->get(Store::class);
+
+        return new Csrf($store, $cookieJar, $setting);
     }
 
     /**
