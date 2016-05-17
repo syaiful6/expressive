@@ -48,6 +48,7 @@ class PasswordBroker implements PasswordBrokerContract
         $this->repository = $repository;
         $this->authenticator = $authenticator;
         $this->mailer = $mailer;
+        $this->emailTemplate = $emailTemplate;
     }
 
     /**

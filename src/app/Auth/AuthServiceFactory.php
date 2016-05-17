@@ -21,7 +21,7 @@ class AuthServiceFactory
         if (method_exists($this, "create$name")) {
             return call_user_func([$this, "create$name"], $container);
         } else {
-            throw new ImproperlyConfigured("can\'t create $requestedName");
+            throw new \RuntimeException("can\'t create $requestedName");
         }
     }
 

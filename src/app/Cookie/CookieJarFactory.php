@@ -16,7 +16,12 @@ class CookieJarFactory
             $config = $container->get('config');
             $session = $config['session'];
             if (isset($session['path']) && isset($session['domain'])) {
-                $cookiejar->setDefaultPathAndDomain($session['path'], $session['domain']);
+                $cookiejar->setDefaultCookieTails(
+                    $session['path'],
+                    $session['domain'],
+                    $session['secure'],
+                    $session['httponly']
+                );
             }
         }
         return $cookiejar;

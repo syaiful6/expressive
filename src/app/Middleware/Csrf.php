@@ -53,6 +53,9 @@ class Csrf
                 'Csrf middleware requires session middleware. And it should ran before it.'
             );
         }
+        if ($session->contains('_CSRF_COOKIE_USED')) {
+            unset($session['_CSRF_COOKIE_USED']); // so we know it used by view
+        }
         try {
             $csrftoken = $this->sanitizeToken($session['_CSRF_TOKEN']);
             $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
@@ -119,8 +122,12 @@ class Csrf
                 $this->rejectRequest('CSRF token missing or incorrect.');
             }
         }
-
-        $response = $this->addCookieToResponse($session, $next($request, $response));
+        $response = $next($request, $response);
+        // not used
+        if (! $session->contains('_CSRF_COOKIE_USED')) {
+            return $response;
+        }
+        $response = $this->addCookieToResponse($session, $response);
 
         return $this->patchVaryHeader($response);
     }
@@ -215,6 +222,10 @@ class Csrf
      */
     public static function getToken(ServerRequestInterface $request)
     {
+        $session = $request->getAttribute('session', false);
+        if ($session) {
+            $session['_CSRF_COOKIE_USED'] = true;
+        }
         return $request->getAttribute('CSRF_COOKIE');
     }
 

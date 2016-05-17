@@ -22,6 +22,11 @@ class CookieJar implements QueueingCookieFactory
     protected $secure = false;
 
     /**
+     *
+     */
+    protected $httpOnly = false;
+
+    /**
      * The cookies
      *
      * @var App\Cookie\Cookie
@@ -102,12 +107,12 @@ class CookieJar implements QueueingCookieFactory
         $secure = false,
         $httpOnly = false
     ) {
-        list($path, $domain, $secure) = $this->getPathAndDomain($path, $domain, $secure);
+        list($path, $domain, $secure, $httpOnly) = $this->getCookieTails($path, $domain, $secure, $httpOnly);
         $this->cookies[$name] = $value;
 
         if ($expires !== null) {
             if ($expires instanceof \DateTime || $expires instanceof \DateTimeImmutable) {
-                $utc = new DateTimeZome('UTC');
+                $utc = new \DateTimeZome('UTC');
                 $expires = $expires->setTimeZone($utc);
                 $utcNow = new \DateTime('now', $timezone);
                 // now we can substract it
@@ -160,11 +165,17 @@ class CookieJar implements QueueingCookieFactory
      * @param  string  $path
      * @param  string  $domain
      * @param  bool    $secure
+     * @param  bool    $httpOnly
      * @return array
      */
-    protected function getPathAndDomain($path, $domain, $secure = false)
+    protected function getCookieTails($path, $domain, $secure = false, $httpOnly = false)
     {
-        return [$path ?: $this->path, $domain ?: $this->domain, $secure ?: $this->secure];
+        return [
+            $path ?: $this->path,
+            $domain ?: $this->domain,
+            $secure ?: $this->secure,
+            $httpOnly ?: $this->httpOnly
+        ];
     }
 
     /**
@@ -175,9 +186,14 @@ class CookieJar implements QueueingCookieFactory
      * @param  bool    $secure
      * @return $this
      */
-    public function setDefaultPathAndDomain($path, $domain, $secure = false)
+    public function setDefaultCookieTails($path, $domain, $secure = false, $httpOnly = false)
     {
-        list($this->path, $this->domain, $this->secure) = [$path, $domain, $secure];
+        list(
+            $this->path,
+            $this->domain,
+            $this->secure,
+            $this->httpOnly
+        ) = [$path, $domain, $secure, $httpOnly];
 
         return $this;
     }
