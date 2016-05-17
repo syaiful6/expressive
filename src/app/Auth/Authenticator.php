@@ -95,7 +95,7 @@ class Authenticator
             $user = $request->getAttribute('user', false);
         }
         if (method_exists($user, 'getRememberToken')) {
-            $sessionAuthHash = $this->getRememberToken();
+            $sessionAuthHash = $user->getRememberToken();
             if (!$sessionAuthHash) {
                 $sessionAuthHash = $this->refreshRememberToken($user, true);
             }
@@ -105,7 +105,7 @@ class Authenticator
             $sessionUserId = (int) $session[static::SESSION_KEY];
             if ($sessionUserId !== (int) $user->getKey() || (
                 $sessionAuthHash &&
-                    ! hash_equals($session->get(static::HASH_SESSION_KEY), $sessionAuthHash)
+                    ! hash_equals($sessionAuthHash, $session->get(static::HASH_SESSION_KEY))
             )) {
                 $session->flush();
             }

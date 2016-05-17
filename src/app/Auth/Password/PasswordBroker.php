@@ -46,7 +46,7 @@ class PasswordBroker implements PasswordBrokerContract
         $emailTemplate
     ) {
         $this->repository = $repository;
-        $this->authenticator = $authenticator;
+        $this->model = $model;
         $this->mailer = $mailer;
         $this->emailTemplate = $emailTemplate;
     }
@@ -88,7 +88,7 @@ class PasswordBroker implements PasswordBrokerContract
 
         $template = $this->emailTemplate;
         return $this->mailer->send(
-            $view,
+            $template,
             compact('token', 'user'),
             function ($m) use ($user, $token, $callback) {
                 $m->to($user->getEmail());
