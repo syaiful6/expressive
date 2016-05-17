@@ -122,7 +122,7 @@ class SessionMiddleware
         if ($configs['expire_on_close']) {
             return 0;
         }
-        return DateTime::now()->modify((int) $configs['lifetime'] . ' minute');
+        return DateTime::now()->modify((int) $configs['lifetime'] . ' second');
     }
 
     /**
@@ -160,7 +160,7 @@ class SessionMiddleware
      */
     protected function getSessionLifetimeInSeconds()
     {
-        return $this->configs['lifetime'] * 60;
+        return $this->configs['lifetime'];
     }
 
     /**

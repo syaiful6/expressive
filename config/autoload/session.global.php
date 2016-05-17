@@ -3,8 +3,8 @@
 return [
     'session' => [
         'backend' => 'file',
-
-        'lifetime' => 120,
+        // session lifetime in seconds, default 2 weeks
+        'lifetime' => 60 * 60 * 24 * 7 * 2,
 
         'expire_on_close' => false,
 

@@ -3,18 +3,13 @@
 namespace App\Auth;
 
 use Illuminate\Support\Str;
-use Zend\EventManager\EventManager;
 use Interop\Container\ContainerInterface;
-use Zend\EventManager\EventManagerAwareTrait;
-use Zend\EventManager\EventsCapableInterface;
-use Zend\EventManager\EventManagerAwareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use function Itertools\map;
+use function Itertools\to_array;
 
-class Authenticator implements EventManagerAwareInterface, EventsCapableInterface
+class Authenticator
 {
-    use EventManagerAwareTrait;
-
     const SESSION_KEY = '_AUTH_USER_ID';
     const BACKEND_SESSION_KEY = '_AUTH_USER_BACKEND';
     const HASH_SESSION_KEY = '_AUTH_USER_REMEMBER_TOKEN';
@@ -32,30 +27,21 @@ class Authenticator implements EventManagerAwareInterface, EventsCapableInterfac
     /**
      * @var Zend\EventManager\EventManagerInterface
      */
-    protected $events;
+    protected $signal;
 
     /**
      * @param Interop\Container\ContainerInterface $container
+     * @param App\Auth\AuthSignals
      * @param \Traversable|array $backends
      */
-    public function __construct(ContainerInterface $container, $backends)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        AuthSignals $signal,
+        $backends
+    ) {
         $this->container = $container;
         $this->backends = $backends;
-    }
-
-    /**
-     * Lazy load Zend\EventManager\EventManagerInterface
-     *
-     * @return Zend\EventManager\EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        if (! $this->events) {
-            $this->setEventManager(new EventManager());
-        }
-
-        return $this->events;
+        $this->signal = $signal;
     }
 
     /**
@@ -63,7 +49,7 @@ class Authenticator implements EventManagerAwareInterface, EventsCapableInterfac
      */
     public function authenticate(array $credentials)
     {
-        foreach ($this->loadBackends() as list($cls, $backend)) {
+        foreach ($this->loadBackends(true) as list($cls, $backend)) {
             if (! $backend instanceof AuthBackend) {
                 throw new \RuntimeException(sprintf(
                     '%s should implements %s to be able handle authenticate user',
@@ -89,7 +75,7 @@ class Authenticator implements EventManagerAwareInterface, EventsCapableInterfac
             return $user;
         }
 
-        $this->authenticateFailed($this->cleanUpCredentials($credentials));
+        $this->signal->authenticateFailed($this->cleanUpCredentials($credentials));
     }
 
     /**
@@ -97,7 +83,7 @@ class Authenticator implements EventManagerAwareInterface, EventsCapableInterfac
      */
     public function login(Request $request, $user, $backend = null)
     {
-        $session = $request->getAttribute('session');
+        $session = $request->getAttribute('session', false);
         if (!$session) {
             throw new \RuntimeException(sprintf(
                 'we need session middleware running before us!'
@@ -110,13 +96,16 @@ class Authenticator implements EventManagerAwareInterface, EventsCapableInterfac
         }
         if (method_exists($user, 'getRememberToken')) {
             $sessionAuthHash = $this->getRememberToken();
+            if (!$sessionAuthHash) {
+                $sessionAuthHash = $this->refreshRememberToken($user, true);
+            }
         }
 
         if ($session->contains(static::SESSION_KEY)) {
             $sessionUserId = (int) $session[static::SESSION_KEY];
             if ($sessionUserId !== (int) $user->getKey() || (
                 $sessionAuthHash &&
-                    $session->get(static::HASH_SESSION_KEY) !== $sessionAuthHash
+                    ! hash_equals($session->get(static::HASH_SESSION_KEY), $sessionAuthHash)
             )) {
                 $session->flush();
             }
@@ -135,9 +124,102 @@ class Authenticator implements EventManagerAwareInterface, EventsCapableInterfac
         $session['_CSRF_TOKEN'] = Str::random(32); // rotate them
 
         $request = $request->withAttribute('user', $user);
-        $this->userLoggedIn($user, $request);
+        $this->signal->userLoggedIn($user, $request);
         // return request so it can be used by middleware
         return $request;
+    }
+
+    /**
+     *
+     */
+    public function logout(Request $request)
+    {
+        $user = $request->getAttribute('user', false);
+        if (method_exists($user, 'isAuthenticate') && !$user->isAuthenticate()) {
+            $user = null;
+        }
+        if ($user) {
+            $this->refreshRememberToken($user, true);
+        }
+        $this->signal->userLoggedOut($user, $request);
+
+        $session = $request->getAttribute('session', false);
+        if ($session) {
+            $session->flush();
+        }
+        // set the request user attribute as anonymous user
+        return $request->withAttribute('user', new AnonymousUser());
+    }
+
+    /**
+     *
+     */
+    public function user(Request $request)
+    {
+        $session = $request->getAttribute('session', false);
+        $user = null;
+        if (! $session) {
+            $user = null;
+        }
+        try {
+            $id = $session[static::SESSION_KEY];
+            $backend = $session[static::BACKEND_SESSION_KEY];
+
+            if (in_array($backend, to_array($this->backends))) {
+                $backend = $this->container->make($backend);
+                $user = $backend->getUser($id);
+
+                if (method_exists($user, 'getRememberToken')) {
+                    $token = $user->getRememberToken();
+                    $sessionToken = $session[static::HASH_SESSION_KEY];
+                    $verify = hash_equals($token, $sessionToken);
+                    if ($verify) {
+                        $session->flush();
+                        $user = null;
+                    }
+                }
+            }
+        } catch (\OutOfBoundsException $e) {
+            // pass, it's mean we dont have an active user in session
+        }
+
+        return $user ?: new AnonymousUser();
+    }
+
+    /**
+     *
+     */
+    public function getUser(Request $request)
+    {
+        return $this->user($request);
+    }
+
+    /**
+     *
+     */
+    public function updateRememberToken(Request $request, $user)
+    {
+        $userRequest = $request->getAttribute('user', false);
+        if (method_exists($user, 'getRememberToken')
+            && $userRequest->getKey() === $user->getKey()
+        ) {
+            $session = $request->getAttribute('session', false);
+            if ($session) {
+                $session[static::HASH_SESSION_KEY] = $this->refreshRememberToken($user, true);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    protected function refreshRememberToken($user, $save = true)
+    {
+        $user->setRememberToken($token = Str::random(60));
+        if ($save) {
+            $user->save();
+        }
+        return $token;
     }
 
     /**

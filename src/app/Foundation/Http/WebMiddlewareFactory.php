@@ -10,7 +10,8 @@ class WebMiddlewareFactory
         'App\Cookie\QueueMiddleware',
         'App\Session\SessionMiddleware',
         'App\Middleware\Csrf',
-        'App\Middleware\ContextProcessor'
+        'App\Auth\AuthenticationMiddleware',
+        'App\Middleware\ContextProcessor',
     ];
 
     protected $skip = '/api';

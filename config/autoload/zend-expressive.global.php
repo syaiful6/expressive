@@ -1,17 +1,24 @@
 <?php
 
+use function App\Foundation\env;
+
 return [
     'debug' => false,
 
     'config_cache_enabled' => false,
-
+    /**
+     * Application timezone and locale, here we can configure our app timezone
+     */
     'timezone' => 'Asia/Jakarta',
-
     'locale' => 'id',
-
     'fallback_locale' => 'en',
-
     'lang_dir' => realpath('lang'),
+    /**
+     * Encryption Key set to random string with length 32 char
+     */
+    'key' => env('APP_KEY'),
+
+    'cipher' => 'AES-256-CBC',
 
     'zend-expressive' => [
         'error_handler' => [

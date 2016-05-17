@@ -78,7 +78,7 @@ class ModelBackend implements AuthBackend
         }
         $query = $this->createModel()->newQuery();
         foreach ($credentials as $k => $v) {
-            $query = $query->where($key, $value);
+            $query = $query->where($k, $v);
         }
 
         return $query->first();
