@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Auth;
+
+use Illuminate\Database\Eloquent\Model;
+use App\Auth\Password\CanResetPasswordTrait;
+
+class User extends Model
+{
+    use BasicUserTrait, CanResetPasswordTrait;
+
+    /**
+     *
+     */
+    protected $fillable = [
+        'name',
+        'email',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * this should mutate to DateTime
+     */
+    protected $dates = ['last_login', 'date_joined'];
+}

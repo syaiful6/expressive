@@ -32,6 +32,7 @@
         "syaiful6/itertools": "~0.1",
         "syaiful6/headbanger": "~0.1",
         "illuminate/database": "^5.2",
+        "illuminate/hashing": "^5.2",
         "illuminate/encryption": "^5.2",
         "illuminate/support": "^5.2",
         "symfony/translation": "2.8.*|3.0.*",

@@ -10,16 +10,39 @@ use function Itertools\to_array;
 
 class Store extends MutableMapping
 {
+    /**
+     * @var boolean to indicate the session data accessed
+     */
     private $accessed = false;
 
+    /**
+     * @var boolean to indicate the entry has been modified
+     */
     private $modified = false;
 
+    /**
+     * @var session backend used by the store
+     */
     protected $backend;
 
+    /**
+     * The loaded session
+     */
     protected $attributes;
 
+    /**
+     * @var string the session name (used to set it on cookie)
+     */
     protected $name;
 
+    /**
+     * @var string the session id
+     */
+    protected $id;
+
+    /**
+     * @var flags to indicate the data has been loaded from backend
+     */
     protected $isLoaded = false;
 
     /**
@@ -34,7 +57,10 @@ class Store extends MutableMapping
     }
 
     /**
+     * Return true if our entry modified, it mean user set new entry, unsetting
+     * the old value or replacing
      *
+     * @return boolean
      */
     public function isModified()
     {
@@ -42,7 +68,9 @@ class Store extends MutableMapping
     }
 
     /**
+     * Return true if our session data accessed
      *
+     * @return boolean
      */
     public function isAccessed()
     {
@@ -50,7 +78,9 @@ class Store extends MutableMapping
     }
 
     /**
+     * Clear / empty the session data without generating new session id
      *
+     * @return void
      */
     public function clear()
     {
@@ -58,7 +88,9 @@ class Store extends MutableMapping
     }
 
     /**
+     * Return the count of all entry in this session
      *
+     * @return integer
      */
     public function count()
     {
@@ -70,6 +102,8 @@ class Store extends MutableMapping
 
     /**
      * Test if this mapping contains an item (key).
+     *
+     * @return boolean
      */
     public function contains($item)
     {
@@ -80,7 +114,13 @@ class Store extends MutableMapping
     }
 
     /**
+     * pop the session entry based the provided key, if the key exists then the
+     * entry will removed and return it. If not exists the default parameter used
+     * as returned value
      *
+     * @param mixed $key The key of the entry
+     * @param mixed $default The default value in case the key not found in session
+     * @return mixed
      */
     public function pop($key, $default = null)
     {
@@ -92,7 +132,7 @@ class Store extends MutableMapping
     }
 
     /**
-     *
+     * prevent the call to our parent, this not supported
      */
     public function popItem()
     {
@@ -100,7 +140,9 @@ class Store extends MutableMapping
     }
 
     /**
+     * IteratorAggregate implementation
      *
+     * @return \Iterator
      */
     public function getIterator()
     {
@@ -175,7 +217,9 @@ class Store extends MutableMapping
     }
 
     /**
+     * Get the session id
      *
+     * @return string
      */
     public function getId()
     {
@@ -183,7 +227,10 @@ class Store extends MutableMapping
     }
 
     /**
+     * Set the sessiond id, if the id is not valid then generate the valid one
      *
+     * @param mixed $id
+     * @return void
      */
     public function setId($id)
     {
@@ -192,6 +239,21 @@ class Store extends MutableMapping
         }
 
         $this->id = $id;
+    }
+
+    /**
+     * Creates a new session Id, while retaining the current session data.
+     *
+     * @return void
+     */
+    public function cycleId()
+    {
+        $data = $this->attributes;
+        $id = $this->getId();
+        if ($id) {
+            $this->flush();
+        }
+        $this->attributes = $data;
     }
 
     /**
@@ -242,41 +304,14 @@ class Store extends MutableMapping
     }
 
     /**
-     * {@inheritdoc}
+     * Removes the current session data from the database and regenerates the
+     * session id
      */
-    public function invalidate($lifetime = null)
+    public function flush()
     {
         $this->clear();
-
-        return $this->migrate(true, $lifetime);
-    }
-
-    /**
-     *
-     */
-    /**
-     * {@inheritdoc}
-     */
-    public function migrate($destroy = false, $lifetime = null)
-    {
-        if ($destroy) {
-            $this->backend->destroy($this->getId());
-        }
-
-        $this->id = $this->generateSessionId();
-
-        return true;
-    }
-
-    /**
-     * Generate a new session identifier.
-     *
-     * @param  bool  $destroy
-     * @return bool
-     */
-    public function regenerate($destroy = false)
-    {
-        return $this->migrate($destroy);
+        $this->destroy();
+        $this->setId(null);
     }
 
     /**
@@ -294,6 +329,14 @@ class Store extends MutableMapping
     protected function prepareForStorage($items)
     {
         return $items;
+    }
+
+    /**
+     *
+     */
+    public function destroy()
+    {
+        $this->backend->destroy($this->getId());
     }
 
     /**
