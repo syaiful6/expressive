@@ -22,12 +22,16 @@ return [
             App\Session\Store::class => App\Session\StoreFactory::class,
             'App\Cookie\QueueingCookieFactory' => 'App\Cookie\CookieJarFactory',
             'App\Translation\LoaderInterface' => 'App\Translation\TranslatorFactory',
+            'App\Cache\Backends\BaseCache' => 'App\Cache\CacheFactory',
+            'App\Cache\RateLimiter' => 'App\Cache\CacheFactory',
             'Symfony\Component\Translation\TranslatorInterface' =>
                 'App\Translation\TranslatorFactory',
             'App\Validation\PresenceVerifierInterface' =>
                 'App\Validation\ValidationServiceFactory',
             'Illuminate\Contracts\Validation\Factory' =>
-                'App\Validation\ValidationServiceFactory'
+                'App\Validation\ValidationServiceFactory',
+            'Illuminate\Contracts\Encryption\Encrypter' =>
+                'App\Foundation\EncrypterFactory',
         ],
     ],
 ];

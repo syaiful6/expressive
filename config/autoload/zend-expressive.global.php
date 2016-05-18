@@ -27,6 +27,26 @@ return [
         ],
     ],
 
+    'cache' => [
+        'default' => env('CACHE_DRIVER', 'database'),
+        'prefix' => '',
+        'stores' => [
+            'database' => [
+                'driver' => 'database',
+                'table'  => 'cache',
+                'connection' => null,
+            ],
+            'memcached' => [
+                'driver'  => 'memcached',
+                'servers' => [
+                    [
+                        'host' => '127.0.0.1', 'port' => 11211, 'weight' => 100,
+                    ],
+                ],
+            ],
+        ],
+    ],
+
     'commands' => [
         'App\Database\Console\Commands\InstallCommand',
         'App\Database\Console\Commands\MakeMigration',

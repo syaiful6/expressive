@@ -53,7 +53,8 @@ class MailerFactory
     protected function createSmtpTransport($config)
     {
         $transport = SmtpTransport::newInstance(
-            $config['host'], $config['port']
+            $config['host'],
+            $config['port']
         );
 
         if (isset($config['encryption'])) {

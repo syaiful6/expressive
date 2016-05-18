@@ -9,10 +9,10 @@ use Illuminate\Database\ConnectionInterface;
 
 class DatabaseTokenRepository implements TokenRepositoryInterface
 {
-	/**
-	 * @var Illuminate\Database\ConnectionInterface
-	 */
-	protected $connection;
+    /**
+     * @var Illuminate\Database\ConnectionInterface
+     */
+    protected $connection;
 
     /**
      * The token database table.

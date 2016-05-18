@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Backends\Cache;
+namespace App\Cache\Backends;
 
 use Closure;
 use Exception;
@@ -37,7 +37,7 @@ class Database extends BaseCache
     public function __construct(
         Connection $connection,
         Encrypter $encrypter,
-        array $params
+        array $params = []
     ) {
         if (isset($params['table'])) {
             $table = $params['table'];
@@ -47,6 +47,7 @@ class Database extends BaseCache
         }
         parent::__construct($params);
         $this->encrypter = $encrypter;
+        $this->connection = $connection;
         $this->table = $table;
     }
 
@@ -191,7 +192,7 @@ class Database extends BaseCache
     /**
      *
      */
-    protected function internalset($mode, $key, $value, $version = null, $timeout)
+    protected function internalset($mode, $key, $value, $version, $timeout)
     {
         $expires = $this->getBackendTimeout($timeout);
         $value = $this->encrypter->encrypt($value);

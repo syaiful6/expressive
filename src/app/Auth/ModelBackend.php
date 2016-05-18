@@ -25,7 +25,6 @@ class ModelBackend implements AuthBackend
     public function authenticate(array $params)
     {
         if (!isset($params['password'])) {
-
             return;
         }
         // pull the password from this params, so it not querying by getByCredentials

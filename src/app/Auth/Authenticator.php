@@ -62,7 +62,7 @@ class Authenticator
             } catch (Exceptions\NotSupportedCredentials $e) {
                 // this backend not supported this credentials so continue
                 continue;
-            } catch(Exceptions\PermissionDenied $e) {
+            } catch (Exceptions\PermissionDenied $e) {
                 // this backend says to stop in our tracks - this user should
                 // not be allowed in at all.
                 break;
@@ -233,7 +233,7 @@ class Authenticator
         }
         throw new \RuntimeException(
             'You have multiple backends installed, therefore therefore must provide'
-           .' the `backend` argument or set the `authBackend` attribute on the user.'
+            .' the `backend` argument or set the `authBackend` attribute on the user.'
         );
     }
 

@@ -26,7 +26,8 @@ class Csrf
     /**
     *
     */
-    public function __construct(CookieFactory $cookiejar, array $configs) {
+    public function __construct(CookieFactory $cookiejar, array $configs)
+    {
         $this->cookiejar = $cookiejar;
         $this->configs = $configs;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Backends\Cache;
+namespace App\Cache\Backends;
 
 use OutOfBoundsException;
 use InvalidArgumentException;
@@ -42,10 +42,10 @@ abstract class BaseCache
     /**
      *
      */
-    public function __construct(array $options)
+    public function __construct(array $options = [])
     {
         $timeout = isset($options['timeout']) ? (int) $options['timeout'] : 300;
-        $this->defaultTimeout = $defaultTimeout;
+        $this->defaultTimeout = $timeout;
 
         $this->maxEntries = isset($options['max_entries'])
             ? (int) $options['max_entries']
@@ -71,7 +71,7 @@ abstract class BaseCache
     /**
      *
      */
-    public function getBackendTimeout($timeout='__default__')
+    public function getBackendTimeout($timeout = '__default__')
     {
         if ($timeout === '__default__') {
             $timeout = $this->defaultTimeout;

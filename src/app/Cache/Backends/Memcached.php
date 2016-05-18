@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Backends\Cache;
+namespace App\Cache\Backends;
 
 use Memcached as CacheServer;
 
@@ -14,7 +14,7 @@ class Memcached extends BaseCache
     /**
      *
      */
-    public function __construct($memcached, array $params)
+    public function __construct($memcached, array $params = [])
     {
         parent::__construct($params);
         $this->memcached = $memcached;

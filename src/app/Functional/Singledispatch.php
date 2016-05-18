@@ -41,7 +41,8 @@ class Singledispatch
         if (! is_callable($func)) {
             throw new \InvalidArgumentException(sprintf(
                 'If argument 2 passed then it should callable. %s given',
-                gettype($func)));
+                gettype($func)
+            ));
         }
         $this->registry[$cls] = $func;
         return $func;

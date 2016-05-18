@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Backends\Cache;
+namespace App\Cache\Backends;
 
 trait CacheKeyTrait
 {
