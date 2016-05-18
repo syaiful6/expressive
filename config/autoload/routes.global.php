@@ -7,7 +7,7 @@ return [
         ],
         // Map middleware -> factories here
         'factories' => [
-            'App\Action\WelcomeView' => 'App\Action\WelcomeViewFactory'
+
         ],
     ],
 

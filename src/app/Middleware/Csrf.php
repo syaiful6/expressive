@@ -23,9 +23,9 @@ class Csrf
      */
     protected $cookiejar;
 
-    protected static $csrfTokenUsed = false;
+    protected $csrfTokenUsed = false;
 
-    protected static $shouldRotate = false;
+    protected $shouldRotate = false;
 
     /**
     *
@@ -113,9 +113,12 @@ class Csrf
                 $this->rejectRequest('CSRF token missing or incorrect.');
             }
         }
+        $request = $request
+            ->withAttribute('CSRF_TOKEN_GET', [$this, 'getToken'])
+            ->withAttribute('CSRF_TOKEN_ROTATE', [$this, 'rotateToken']);
         $response = $next($request, $response);
         // not used, maybe there are no form on the template
-        if (! static::$csrfTokenUsed) {
+        if (! $this->csrfTokenUsed) {
             return $response;
         }
         $response = $this->addCookieToResponse($csrftoken, $response);
@@ -128,7 +131,7 @@ class Csrf
      */
     protected function addCookieToResponse($csrftoken, ResponseInterface $response)
     {
-        if (static::$shouldRotate) {
+        if ($this->shouldRotate) {
             $token = $this->getNewCsrfToken();
         } else {
             $token = $csrftoken ?: $this->getNewCsrfToken();
@@ -216,19 +219,19 @@ class Csrf
     /**
      *
      */
-    public static function getToken(ServerRequestInterface $request)
+    public function getToken(ServerRequestInterface $request)
     {
-        static::$csrfTokenUsed = true;
+        $this->csrfTokenUsed = true;
         return $request->getAttribute('CSRF_COOKIE');
     }
 
     /**
      *
      */
-    public static function rotateToken()
+    public function rotateToken()
     {
-        static::$shouldRotate = true;
-        static::$csrfTokenUsed = true;
+        $this->shouldRotate = true;
+        $this->csrfTokenUsed = true;
     }
 
     /**

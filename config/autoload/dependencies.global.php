@@ -33,5 +33,8 @@ return [
             'Illuminate\Contracts\Encryption\Encrypter' =>
                 'App\Foundation\EncrypterFactory',
         ],
+        'abstract_factories' => [
+            'App\Foundation\AbstractFactoryReflection'
+        ]
     ],
 ];
