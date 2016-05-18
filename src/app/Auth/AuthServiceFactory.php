@@ -33,7 +33,7 @@ class AuthServiceFactory
         $backends = [];
         if ($container->has('config')) {
             $config = $container->get('config');
-            $backends = isset($config['auth']) ? $config['auth']['backends'] : nulll;
+            $backends = isset($config['auth']) ? $config['auth']['backends'] : null;
         }
 
         if (empty($backends)) {

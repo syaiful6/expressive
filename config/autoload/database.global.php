@@ -6,7 +6,7 @@ use function App\Foundation\env;
 return [
     'dependencies' => [
         'invokables' => [
-            'App\Database\MigrationCreator',
+            'App\Database\MigrationCreator' => 'App\Database\MigrationCreator',
         ],
 
         'factories' => [

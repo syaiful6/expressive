@@ -2,6 +2,7 @@
 
 namespace App\Auth;
 
+use App\DateTime\DateTime;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -51,5 +52,20 @@ class AuthSignals implements EventManagerAwareInterface
     {
         $params = compact('user', 'request');
         $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+    }
+
+    /**
+     *
+     */
+    protected function attachDefaultListeners()
+    {
+        $manager = $this->getEventManager();
+        $manager->attach('userLoggedIn', function ($event) {
+            $user = $event->getParam('user', false);
+            if ($user) {
+                $user->last_login = DateTime::now();
+                $user->save();
+            }
+        });
     }
 }

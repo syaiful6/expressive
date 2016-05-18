@@ -23,9 +23,8 @@ if (is_file($cachedConfigFile)) {
 } else {
     // load dotenv
     try {
-        (new Dotenv('.env-dev'))->load();
+        (new Dotenv(__DIR__, '/.env-dev'))->load();
     } catch (InvalidPathException $e) {
-        //
     }
 
     // Load configuration from autoload path

@@ -166,14 +166,14 @@ class Authenticator
             $backend = $session[static::BACKEND_SESSION_KEY];
 
             if (in_array($backend, to_array($this->backends))) {
-                $backend = $this->container->make($backend);
+                $backend = $this->container->get($backend);
                 $user = $backend->getUser($id);
 
                 if (method_exists($user, 'getRememberToken')) {
                     $token = $user->getRememberToken();
                     $sessionToken = $session[static::HASH_SESSION_KEY];
                     $verify = hash_equals($token, $sessionToken);
-                    if ($verify) {
+                    if (!$verify) {
                         $session->flush();
                         $user = null;
                     }
@@ -259,9 +259,9 @@ class Authenticator
     {
         return map(function ($backend) use ($includeCls) {
             if ($includeCls) {
-                return [$backend, $this->container->make($backend)];
+                return [$backend, $this->container->get($backend)];
             }
-            return $this->container->make($backend);
+            return $this->container->get($backend);
         }, $this->backends);
     }
 }

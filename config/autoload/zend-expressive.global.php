@@ -3,7 +3,7 @@
 use function App\Foundation\env;
 
 return [
-    'debug' => false,
+    'debug' => env('APP_DEBUG', false),
 
     'config_cache_enabled' => false,
     /**

@@ -3,7 +3,7 @@
 return [
     'dependencies' => [
         'invokables' => [
-            'App\Auth\AuthSignals'
+            'App\Auth\AuthSignals' => 'App\Auth\AuthSignals'
         ],
         'factories' => [
             'App\Auth\ModelBackend' => 'App\Auth\AuthServiceFactory',
