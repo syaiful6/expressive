@@ -71,14 +71,14 @@ class CacheFactory
      */
     protected function createMemcachedBackend(Container $container, array $config, array $params)
     {
-        $memcached = $this->connectToMemcache($config['server']);
+        $memcached = $this->connectToMemcache($config['servers']);
         return new Backends\Memcached($memcached, $params);
     }
 
     /**
      *
      */
-    protected function connectToMemcache($server)
+    protected function connectToMemcache($servers)
     {
         $memcached = new \Memcached();
         foreach ($servers as $server) {

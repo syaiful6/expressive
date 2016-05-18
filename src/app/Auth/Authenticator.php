@@ -5,6 +5,7 @@ namespace App\Auth;
 use Illuminate\Support\Str;
 use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use App\Middleware\Csrf;
 use function Itertools\map;
 use function Itertools\to_array;
 
@@ -121,8 +122,7 @@ class Authenticator
         $session[static::SESSION_KEY] = $user->getKey();
         $session[static::BACKEND_SESSION_KEY] = $backend;
         $session[static::HASH_SESSION_KEY] = $sessionAuthHash;
-        $session['_CSRF_TOKEN'] = Str::random(32); // rotate them
-
+        Csrf::rotateToken(); // rotate the csrf token
         $request = $request->withAttribute('user', $user);
         $this->signal->userLoggedIn($user, $request);
         // return request so it can be used by middleware

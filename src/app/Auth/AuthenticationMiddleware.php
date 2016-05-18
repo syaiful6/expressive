@@ -25,6 +25,8 @@ class AuthenticationMiddleware
      */
     public function __invoke(Request $request, Response $response, callable $next)
     {
+        // need a way to lazily instantiate this user, so the session middleware not patch
+        // vary header, on every request.
         $user = $this->authenticator->user($request);
         $request = $request->withAttribute('user', $user);
 

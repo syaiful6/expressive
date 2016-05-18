@@ -23,6 +23,10 @@ class Csrf
      */
     protected $cookiejar;
 
+    protected static $csrfTokenUsed = false;
+
+    protected static $shouldRotate = false;
+
     /**
     *
     */
@@ -48,33 +52,19 @@ class Csrf
         ResponseInterface $response,
         callable $next
     ) {
-        $session = $request->getAttribute('session', false);
-        if (!$session) {
-            throw new \RuntimeException(
-                'Csrf middleware requires session middleware. And it should ran before it.'
-            );
-        }
-        if ($session->contains('_CSRF_COOKIE_USED')) {
-            unset($session['_CSRF_COOKIE_USED']); // so we know it used by view
-        }
-        try {
-            $csrftoken = $this->sanitizeToken($session['_CSRF_TOKEN']);
+
+        // try to get from cookie
+        $cookies = $request->getCookieParams();
+        if (isset($cookies[static::CSRF_COOKIE_NAME])) {
+            $csrftoken = $this->sanitizeToken($cookies[static::CSRF_COOKIE_NAME]);
             $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
-        } catch (OutOfBoundsException $e) {
-            // try to get from cookie
-            $cookies = $request->getCookieParams();
-            if (isset($cookies[static::CSRF_COOKIE_NAME])) {
-                $csrftoken = $session['_CSRF_TOKEN'] =
-                    $this->sanitizeToken($cookies[static::CSRF_COOKIE_NAME]);
-                $request = $request->withAttribute('CSRF_COOKIE', $csrftoken);
-            } else {
-                $csrftoken = '';
-                // set for next
-                $request = $request->withAttribute(
-                    'CSRF_COOKIE',
-                    $session['_CSRF_TOKEN'] = $this->getNewCsrfToken()
-                );
-            }
+        } else {
+            $csrftoken = '';
+            // set for next
+            $request = $request->withAttribute(
+                'CSRF_COOKIE',
+                $this->getNewCsrfToken()
+            );
         }
 
         if (!in_array($request->getMethod(), ['GET', 'HEAD', 'OPTIONS', 'TRACE'])) {
@@ -124,11 +114,11 @@ class Csrf
             }
         }
         $response = $next($request, $response);
-        // not used
-        if (! $session->contains('_CSRF_COOKIE_USED')) {
+        // not used, maybe there are no form on the template
+        if (! static::$csrfTokenUsed) {
             return $response;
         }
-        $response = $this->addCookieToResponse($session, $response);
+        $response = $this->addCookieToResponse($csrftoken, $response);
 
         return $this->patchVaryHeader($response);
     }
@@ -136,11 +126,16 @@ class Csrf
     /**
      * Add cookie to response so it's easier for our frontend developer
      */
-    protected function addCookieToResponse($session, ResponseInterface $response)
+    protected function addCookieToResponse($csrftoken, ResponseInterface $response)
     {
+        if (static::$shouldRotate) {
+            $token = $this->getNewCsrfToken();
+        } else {
+            $token = $csrftoken ?: $this->getNewCsrfToken();
+        }
         $cookie = $this->cookiejar->make(
             self::CSRF_COOKIE_NAME,
-            $session->get('_CSRF_TOKEN', $this->getNewCsrfToken()),
+            $token,
             null,
             self::CSRF_COOKIE_AGE,
             $this->configs['path'],
@@ -223,11 +218,17 @@ class Csrf
      */
     public static function getToken(ServerRequestInterface $request)
     {
-        $session = $request->getAttribute('session', false);
-        if ($session) {
-            $session['_CSRF_COOKIE_USED'] = true;
-        }
+        static::$csrfTokenUsed = true;
         return $request->getAttribute('CSRF_COOKIE');
+    }
+
+    /**
+     *
+     */
+    public static function rotateToken()
+    {
+        static::$shouldRotate = true;
+        static::$csrfTokenUsed = true;
     }
 
     /**
