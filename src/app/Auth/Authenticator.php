@@ -2,62 +2,62 @@
 
 namespace App\Auth;
 
+use App\Session\Store;
 use Illuminate\Support\Str;
-use Interop\Container\ContainerInterface;
+use App\DateTime\DateTime;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerAwareTrait;
+use Zend\EventManager\EventManagerAwareInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use function Itertools\map;
-use function Itertools\to_array;
 
-class Authenticator
+class Authenticator implements EventManagerAwareInterface
 {
+    use EventManagerAwareTrait;
+
     const SESSION_KEY = '_AUTH_USER_ID';
     const BACKEND_SESSION_KEY = '_AUTH_USER_BACKEND';
     const HASH_SESSION_KEY = '_AUTH_USER_REMEMBER_TOKEN';
 
     /**
-    * @var array|\Traversable string auth backend class name
+    * @var array AuthBackend[]
     */
     protected $backends;
 
     /**
-    * @var Interop\Container\ContainerInterface
-    */
-    protected $container;
-
-    /**
      * @var Zend\EventManager\EventManagerInterface
      */
-    protected $signal;
+    protected $events;
 
     /**
-     * @param Interop\Container\ContainerInterface $container
-     * @param App\Auth\AuthSignals
-     * @param \Traversable|array $backends
+     * @var App\Session\Store
      */
-    public function __construct(
-        ContainerInterface $container,
-        AuthSignals $signal,
-        $backends
-    ) {
-        $this->container = $container;
+    protected $session;
+
+    /**
+     * Create new authenticator, the backends arguments is stack of App\Auth\AuthBackend
+     * instance. It will execute until an backend give the permission.
+     *
+     * @param App\Session\Store $session
+     * @param App\Auth\AuthBackend[] $backends
+     */
+    public function __construct(Store $session, array $backends)
+    {
+        $this->session = $session;
         $this->backends = $backends;
-        $this->signal = $signal;
     }
 
     /**
-     * If the given credentials are valid, return a User object.
+     * If the given credentials are valid, return a User object, otherwise return
+     * null.
+     *
+     * @param array $credentials
+     * @return user model
      */
     public function authenticate(array $credentials)
     {
-        foreach ($this->loadBackends(true) as list($cls, $backend)) {
-            if (! $backend instanceof AuthBackend) {
-                throw new \RuntimeException(sprintf(
-                    '%s should implements %s to be able handle authenticate user',
-                    $cls,
-                    AuthBackend::class
-                ));
-            }
+        foreach ($this->backends as $backend) {
             try {
+                // trust the user, and just call the authenticate method.
                 $user = $backend->authenticate($credentials);
             } catch (Exceptions\NotSupportedCredentials $e) {
                 // this backend not supported this credentials so continue
@@ -70,25 +70,21 @@ class Authenticator
             if ($user === null) {
                 continue;
             }
-            $user->authBackend = $cls;
+            $user->authBackend = $backend;
 
             return $user;
         }
 
-        $this->signal->authenticateFailed($this->cleanUpCredentials($credentials));
+        $this->authenticateFailed($this->cleanUpCredentials($credentials));
     }
 
     /**
-     *
+     * login the given user and persist it through session. It also set the user
+     * attribute to the give request.
      */
     public function login(Request $request, $user, $backend = null)
     {
-        $session = $request->getAttribute('session', false);
-        if (!$session) {
-            throw new \RuntimeException(sprintf(
-                'we need session middleware running before us!'
-            ));
-        }
+        $session = $this->session;
 
         $sessionAuthHash = '';
         if (!$user) {
@@ -117,6 +113,7 @@ class Authenticator
         if (! $backend) {
             $backend = $this->validateSingleBackend();
         }
+        $backend = is_object($backend) ? get_class($backend) : $backend;
 
         $session[static::SESSION_KEY] = $user->getKey();
         $session[static::BACKEND_SESSION_KEY] = $backend;
@@ -126,20 +123,16 @@ class Authenticator
         $rotateToken = $request->getAttribute('CSRF_TOKEN_ROTATE');
         if (is_callable($rotateToken)) {
             $rotateToken();
-        } else {
-            throw new \RuntimeException(
-                'failed to rotate csrf token, you maybe change the CSRF_TOKEN_ROTATE value.'
-            );
         }
 
         $request = $request->withAttribute('user', $user);
-        $this->signal->userLoggedIn($user, $request);
+        $this->userLoggedIn($user, $request);
         // return request so it can be used by middleware
         return $request;
     }
 
     /**
-     *
+     * Logout the current logged in user in request.
      */
     public function logout(Request $request)
     {
@@ -150,12 +143,9 @@ class Authenticator
         if ($user) {
             $this->refreshRememberToken($user, true);
         }
-        $this->signal->userLoggedOut($user, $request);
-
-        $session = $request->getAttribute('session', false);
-        if ($session) {
-            $session->flush();
-        }
+        $this->userLoggedOut($user, $request);
+        // flush the session
+        $this->session->flush();
         // set the request user attribute as anonymous user
         return $request->withAttribute('user', new AnonymousUser());
     }
@@ -163,33 +153,29 @@ class Authenticator
     /**
      *
      */
-    public function user(Request $request)
+    public function user()
     {
-        $session = $request->getAttribute('session', false);
+        $session = $this->session;
         $user = null;
-        if (! $session) {
-            $user = null;
-        }
         try {
             $id = $session[static::SESSION_KEY];
-            $backend = $session[static::BACKEND_SESSION_KEY];
+            $backendCls = $session[static::BACKEND_SESSION_KEY];
+            $backend = $this->searchBackend($backendCls);
+            $user = $backend->getUser($id);
 
-            if (in_array($backend, to_array($this->backends))) {
-                $backend = $this->container->get($backend);
-                $user = $backend->getUser($id);
-
-                if (method_exists($user, 'getRememberToken')) {
-                    $token = $user->getRememberToken();
-                    $sessionToken = $session[static::HASH_SESSION_KEY];
-                    $verify = hash_equals($token, $sessionToken);
-                    if (!$verify) {
-                        $session->flush();
-                        $user = null;
-                    }
+            if (method_exists($user, 'getRememberToken')) {
+                $token = $user->getRememberToken();
+                $sessionToken = $session[static::HASH_SESSION_KEY];
+                $verify = hash_equals($token, $sessionToken);
+                if (!$verify) {
+                    $session->flush();
+                    $user = null;
                 }
             }
         } catch (\OutOfBoundsException $e) {
             // pass, it's mean we dont have an active user in session
+        } catch (Exceptions\BackendRemoved $e) {
+            // pass the auth backend is removed, so log out it
         }
 
         return $user ?: new AnonymousUser();
@@ -198,9 +184,34 @@ class Authenticator
     /**
      *
      */
-    public function getUser(Request $request)
+    public function getUser()
     {
-        return $this->user($request);
+        return $this->user();
+    }
+
+    /**
+     *
+     */
+    public function addBackend($backend)
+    {
+        $this->backends[] = $backend;
+    }
+
+    /**
+     *
+     */
+    public function removeBackend($toRemove)
+    {
+        $isString = is_string($toRemove);
+        $newBackend = [];
+        foreach ($this->backends as $backend) {
+            if ($is_string && $toRemove === get_class($backend) ||
+                ($toRemove === $backend)) {
+                continue;
+            }
+            $newBackend[] = $backend;
+        }
+        $this->backends = $newBackend;
     }
 
     /**
@@ -220,6 +231,61 @@ class Authenticator
     }
 
     /**
+     * Lazy load Zend\EventManager\EventManagerInterface
+     *
+     * @return Zend\EventManager\EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (! $this->events) {
+            $this->setEventManager(new EventManager());
+        }
+
+        return $this->events;
+    }
+
+    /**
+     *
+     */
+    public function authenticateFailed(array $params)
+    {
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+    }
+
+    /**
+     *
+     */
+    public function userLoggedIn($user, Request $request = null)
+    {
+        $params = compact('user', 'request');
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+    }
+
+    /**
+     *
+     */
+    public function userLoggedOut($user, Request $request = null)
+    {
+        $params = compact('user', 'request');
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+    }
+
+    /**
+     *
+     */
+    protected function attachDefaultListeners()
+    {
+        $manager = $this->getEventManager();
+        $manager->attach('userLoggedIn', function ($event) {
+            $user = $event->getParam('user', false);
+            if ($user) {
+                $user->last_login = DateTime::now();
+                $user->save();
+            }
+        });
+    }
+
+    /**
      *
      */
     protected function refreshRememberToken($user, $save = true)
@@ -236,13 +302,28 @@ class Authenticator
      */
     protected function validateSingleBackend()
     {
-        $backends = is_array($this->backends) ? $this->backends : to_array($this->backends);
-        if (count($backends) === 1) {
-            return $backends[0];
+        if (count($this->backends) === 1) {
+            return $this->backends[0];
         }
         throw new \RuntimeException(
             'You have multiple backends installed, therefore therefore must provide'
             .' the `backend` argument or set the `authBackend` attribute on the user.'
+        );
+    }
+
+    /**
+     *
+     */
+    protected function searchBackend($cls)
+    {
+        foreach ($this->backends as $backend) {
+            if (get_class($backend) === $cls) {
+                return $backend;
+            }
+        }
+        throw new Exceptions\BackendRemoved(
+            "No [$cls] backends in authenticator. It maybe removed while user's session"
+            ."still valid"
         );
     }
 
@@ -259,18 +340,5 @@ class Authenticator
             }
         }
         return $credentials;
-    }
-
-    /**
-     *
-     */
-    protected function loadBackends($includeCls = true)
-    {
-        return map(function ($backend) use ($includeCls) {
-            if ($includeCls) {
-                return [$backend, $this->container->get($backend)];
-            }
-            return $this->container->get($backend);
-        }, $this->backends);
     }
 }

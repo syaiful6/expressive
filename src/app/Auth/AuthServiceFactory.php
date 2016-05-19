@@ -2,6 +2,7 @@
 
 namespace App\Auth;
 
+use App\Session\Store;
 use Interop\Container\ContainerInterface as Container;
 
 class AuthServiceFactory
@@ -39,12 +40,13 @@ class AuthServiceFactory
         if (empty($backends)) {
             $backends = [ModelBackend::class];
         }
-        if ($container->has(AuthSignals::class)) {
-            $signal = $container->get(AuthSignals::class);
-        } else {
-            throw new \RuntimeException('you maybe forget to install AuthSignals on config');
-        }
-        return new Authenticator($container, $signal, $backends);
+
+        $backends = array_map(function ($backend) use ($container) {
+            return $container->get($backend);
+        }, $backends);
+        $session = $container->get(Store::class);
+
+        return new Authenticator($session, $backends);
     }
 
     /**
