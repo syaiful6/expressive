@@ -22,10 +22,7 @@ class MailerFactory
             $transport = $this->createTransport($mailConfig);
             $template = $container->get(Renderer::class);
 
-            $mailer = new Mailer($template, $transport);
-
-            $mailer->setContainer($container);
-            return $mailer;
+            return new Mailer($template, $transport);
         }
         throw \RuntimeException('cant create mailer without configuration');
     }

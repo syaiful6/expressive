@@ -7,7 +7,6 @@ use Swift_Mailer;
 use Swift_Message;
 use InvalidArgumentException;
 use Illuminate\Support\Arr;
-use Interop\Container\ContainerInterface;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Zend\Expressive\Template\TemplateRendererInterface as Renderer;
 
@@ -38,11 +37,6 @@ class Mailer implements MailerContract
      * @var array
      */
     protected $to;
-
-    /**
-     * @var Interop\Container\ContainerInterface
-     */
-    protected $container;
 
     /**
      * @var string[] failed recipient
@@ -232,18 +226,12 @@ class Mailer implements MailerContract
      * @param  callable  $callback
      * @param  \Illuminate\Mail\Message  $message
      * @return mixed
-     *
      * @throws \InvalidArgumentException
      */
     protected function callMessageBuilder($callback, $message)
     {
         if (is_callable($callback)) {
             return call_user_func($callback, $message);
-        }
-
-        if (is_string($callback) && $this->container
-            && $this->container->has($callback)) {
-            return $this->container->get($callback)->mail($message);
         }
 
         throw new InvalidArgumentException('Callback is not valid.');
@@ -319,21 +307,5 @@ class Mailer implements MailerContract
     public function setSwiftMailer($swift)
     {
         $this->swift = $swift;
-    }
-
-    /**
-     *
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     *
-     */
-    public function getContainer()
-    {
-        return $this->container;
     }
 }

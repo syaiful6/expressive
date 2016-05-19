@@ -40,7 +40,7 @@ class GenericMiddlewareFactory
             $cookieJar = $container->get(Cookie\QueueingCookieFactory::class);
         } else {
             throw new \RuntimeException(
-                'cant create csrf middleware! no cookie jar on container'
+                'cant create csrf middleware! no cookiejar on container'
             );
         }
 
@@ -55,6 +55,24 @@ class GenericMiddlewareFactory
         $config = $container->has('config') ? $container->get('config') : [];
         $setting = isset($config['templates']) ? $config['templates'] : [];
         $processors = isset($setting['context_processors']) ? $setting['context_processors'] : [];
-        return new ContextProcessor($container, $processors);
+        // map the processors, so ContextProcessor can consume it. It expect array
+        // of callable. Whereas the context_processors config maybe a service available
+        // on container. So fetch it.
+        $processors = array_map(function ($processor) use ($container) {
+
+            if (is_callable($processor)) {
+                return $processor;
+            }
+            // otherwise create this service
+            return $container->get($processor);
+        }, $processors);
+        if ($container->has(TemplateRendererInterface::class)) {
+            $renderer = $container->get(TemplateRendererInterface::class);
+            return new ContextProcessor($renderer, $processors);
+        }
+        throw new \RuntimeException(sprintf(
+            'cant create ContextProcessor, %s service not available on container',
+            TemplateRendererInterface::class
+        ));
     }
 }

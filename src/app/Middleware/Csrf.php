@@ -19,13 +19,24 @@ class Csrf
     const CSRF_COOKIE_AGE = 31449600;
 
     /**
-     *
+     * @var App\Cookie\CookieFactory
      */
     protected $cookiejar;
 
+    /**
+     * @var boolean To indicate the csrf token used by the template
+     */
     protected $csrfTokenUsed = false;
 
+    /**
+     * @var boolean to signal that token should rotate/create new token
+     */
     protected $shouldRotate = false;
+
+    /**
+     * @var array For setting cookie
+     */
+    protected $configs;
 
     /**
     *
