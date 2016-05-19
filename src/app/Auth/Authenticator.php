@@ -37,13 +37,13 @@ class Authenticator implements EventManagerAwareInterface
      * Create new authenticator, the backends arguments is stack of App\Auth\AuthBackend
      * instance. It will execute until an backend give the permission.
      *
-     * @param App\Session\Store $session
      * @param App\Auth\AuthBackend[] $backends
+     * @param App\Session\Store $session
      */
-    public function __construct(Store $session, array $backends)
+    public function __construct(array $backends, Store $session = null)
     {
-        $this->session = $session;
         $this->backends = $backends;
+        $this->session = $session;
     }
 
     /**
@@ -195,6 +195,22 @@ class Authenticator implements EventManagerAwareInterface
     public function addBackend($backend)
     {
         $this->backends[] = $backend;
+    }
+
+    /**
+     *
+     */
+    public function setSession(Store $session)
+    {
+        $this->session = $session;
+    }
+
+    /**
+     *
+     */
+    public function getSession()
+    {
+        return $this->session;
     }
 
     /**

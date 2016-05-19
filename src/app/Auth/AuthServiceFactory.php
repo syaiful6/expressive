@@ -44,9 +44,12 @@ class AuthServiceFactory
         $backends = array_map(function ($backend) use ($container) {
             return $container->get($backend);
         }, $backends);
-        $session = $container->get(Store::class);
 
-        return new Authenticator($session, $backends);
+        $authenticator = new Authenticator($backends);
+        if ($container->has(Store::class)) {
+            $authenticator->setSession($container->get(Store::class));
+        }
+        return $authenticator;
     }
 
     /**
