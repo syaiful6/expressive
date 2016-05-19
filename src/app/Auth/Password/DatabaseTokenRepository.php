@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Passwords;
+namespace App\Auth\Password;
 
 use App\DateTime\DateTime;
 use App\DateTime\TimeDelta;

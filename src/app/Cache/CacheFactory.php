@@ -16,7 +16,7 @@ class CacheFactory
     public function __invoke(Container $container, $requestedName)
     {
         if ($requestedName === RateLimiter::class) {
-            return new RateLimiter($container->get(Backends\BaseCache));
+            return new RateLimiter($container->get(Backends\BaseCache::class));
         }
         if ($container->has('config')) {
             $config = $container->get('config');
@@ -26,7 +26,7 @@ class CacheFactory
             $method = 'create'.Str::studly($driver).'Backend';
             $driverConf = $cache['stores'][$driver];
 
-            $params = array_filter($config, function ($key) {
+            $params = array_filter($cache, function ($key) {
                 return $key !== 'stores';
             }, ARRAY_FILTER_USE_KEY);
 

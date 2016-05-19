@@ -18,7 +18,7 @@ class ValidationServiceFactory
         array $options = null
     ) {
         if ($requestedName === FactoryContract::class) {
-            return $this->createValidationFactory($container)
+            return $this->createValidationFactory($container);
         } elseif ($requestedName === PresenceVerifierInterface::class) {
             return $this->createPresenceVerifier($container);
         } else {

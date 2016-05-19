@@ -8,7 +8,7 @@ use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Stratigility\MiddlewareInterface;
 use Zend\Diactoros\Stream;
 
-class WelcomeView
+class WelcomeAction
 {
     /**
      * @var Zend\Expressive\Template\TemplateRendererInterface

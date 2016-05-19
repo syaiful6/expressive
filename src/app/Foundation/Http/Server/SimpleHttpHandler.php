@@ -21,7 +21,7 @@ class SimpleHttpHandler extends BaseHttpHandler
     ) {
 
         $this->stdout = $stdout ?: new Stream('php://output', 'wb');
-        $this->stderr = $this->stderr  ?: new Stream('php://stderr', 'wb');
+        $this->stderr = $this->stderr ?: new Stream('php://stderr', 'wb');
     }
 
     /**

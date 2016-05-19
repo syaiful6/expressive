@@ -16,7 +16,7 @@ class TranslatorFactory
         array $options = null
     ) {
         if ($requestedName === TranslatorInterface::class) {
-            return $this->createTranslator($container)
+            return $this->createTranslator($container);
         } elseif ($requestedName === LoaderInterface::class) {
             return $this->createLoader($container);
         } else {
@@ -47,6 +47,6 @@ class TranslatorFactory
     {
         $config = $container->has('config') ? $container->get('config') : [];
         $path = isset($config['lang_dir']) ? $config['lang_dir'] : 'lang';
-        return new FileLoader($path)
+        return new FileLoader($path);
     }
 }

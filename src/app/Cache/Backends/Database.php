@@ -108,7 +108,7 @@ class Database extends BaseCache
      *
      * @return void
      */
-    public function flush()
+    public function clear()
     {
         $this->table()->delete();
     }

@@ -46,7 +46,7 @@ class RateLimiter
     {
         $this->cache->add($key, 1, $version, $timeout);
 
-        return $this->cache->increment($key, 1, $version)
+        return $this->cache->increment($key, 1, $version);
     }
 
     /**

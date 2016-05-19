@@ -214,7 +214,8 @@ abstract class BaseHttpHandler
      */
     protected function cleanUpHeaders()
     {
-        if (! isset($this->headers['Content-Length'])) {
+        if (! isset($this->headers['Content-Length'])
+            && null !== $this->headers['Content-Length']) {
             $this->setContentLength();
         }
     }

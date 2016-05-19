@@ -15,8 +15,14 @@ return [
         [
             'name'  => 'welcome',
             'path'  => '/',
-            'middleware' => 'App\Action\WelcomeView',
-            'allowed_methods' => ['GET', 'POST'],
+            'middleware' => 'App\Action\WelcomeAction',
+            'allowed_methods' => ['GET'],
         ],
+        [
+            'name' => 'login',
+            'path' => '/login',
+            'middleware' => 'App\Action\LoginAction',
+            'allowed_methods' => ['GET', 'POST']
+        ]
     ],
 ];

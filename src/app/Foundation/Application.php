@@ -2,8 +2,7 @@
 
 namespace App\Foundation;
 
-use Iterator;
-use IteratorAggregate;
+use Traversable;
 use Zend\Diactoros\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Interop\Container\ContainerInterface;
@@ -52,8 +51,7 @@ class Application extends ExpressiveApp
             if ($body->isSeekable()) {
                 $body->rewind();
             }
-            if (! $body instanceof IteratorAggregate ||
-                ! $body instanceof Iterator) {
+            if (! $body instanceof Traversable) {
                 $body = [$body->getContents()];
             }
 
