@@ -28,7 +28,7 @@ class Store extends MutableMapping
     /**
      * The loaded session
      */
-    protected $attributes;
+    protected $attributes = [];
 
     /**
      * @var string the session name (used to set it on cookie)

@@ -32,9 +32,15 @@ return [
                 'App\Validation\ValidationServiceFactory',
             'Illuminate\Contracts\Encryption\Encrypter' =>
                 'App\Foundation\EncrypterFactory',
+            'App\Flash\Storage\BaseStorage' => 'App\Flash\FlashServiceFactory',
+            'App\Flash\FlashMessageInterface' => 'App\Flash\FlashServiceFactory',
+            'App\Flash\FlashMessageMiddleware' => 'App\Flash\FlashServiceFactory'
         ],
         'abstract_factories' => [
             'App\Foundation\AbstractFactoryReflection'
+        ],
+        'initializers' => [
+            'App\Foundation\ValidatorFactoryAwareInitializer'
         ]
     ],
 ];

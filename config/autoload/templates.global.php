@@ -21,6 +21,7 @@ return [
         'context_processors' => [
             'App\Foundation\ContextProcessor\UserContext',
             'App\Foundation\ContextProcessor\CsrfContexProcessor',
+            'App\Flash\FlashContextProcessor',
         ],
     ],
 

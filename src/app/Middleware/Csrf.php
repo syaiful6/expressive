@@ -112,7 +112,7 @@ class Csrf
 
             $requestcsrftoken = '';
             if ($request->getMethod() === 'POST') {
-                $post = $this->getParsedBody();
+                $post = $request->getParsedBody();
                 $requestcsrftoken = isset($post['csrfmiddlewaretoken'])
                     ? $post['csrfmiddlewaretoken']
                     : '';

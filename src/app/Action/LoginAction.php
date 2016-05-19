@@ -2,21 +2,19 @@
 
 namespace App\Action;
 
+use Illuminate\Support\MessageBag;
 use App\Auth\Authenticator;
 use App\Cache\RateLimiter;
 use Zend\Diactoros\Stream;
-use App\Foundation\Http\DispatchMethod;
-use App\Foundation\Http\ValidateRequest;
+use App\Foundation\Http\BaseActionMiddleware;
 use Zend\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 use Zend\Expressive\Template\TemplateRendererInterface as Template;
 
-class LoginAction
+class LoginAction extends BaseActionMiddleware
 {
-    use DispatchMethod, ValidateRequest;
-
     /**
      * @var App\Auth\Authenticator
      */
@@ -28,11 +26,6 @@ class LoginAction
     protected $template;
 
     /**
-     * @var Illuminate\Contracts\Validation\Factory
-     */
-    protected $validationFactory;
-
-    /**
      * @var App\Cache\RateLimiter
      */
     protected $limiter;
@@ -42,12 +35,10 @@ class LoginAction
      */
     public function __construct(
         Authenticator $authenticator,
-        ValidationFactory $validationFactory,
         Template $template,
         RateLimiter $limiter
     ) {
         $this->authenticator = $authenticator;
-        $this->validationFactory = $validationFactory;
         $this->template = $template;
         $this->limiter = $limiter;
     }
@@ -57,7 +48,11 @@ class LoginAction
      */
     public function get(Request $request, Response $response, callable $next)
     {
-        $html = $this->template->render('app::auth/login');
+        $user = $request->getAttribute('user');
+        if ($user->isAuthenticate()) {
+            return new RedirectResponse('/');
+        }
+        $html = $this->template->render('app::auth/login', ['error' => new MessageBag]);
         $stream = new Stream('php://memory', 'wb+');
         $stream->write($html);
         return $response
@@ -96,9 +91,13 @@ class LoginAction
         $user = $this->authenticator->authenticate($credential);
         if ($user) {
             $this->authenticator->login($request, $user);
-
+            $flash = $request->getAttribute('_messages');
+            $flash->info("Welcome {$user->name}.");
             return new RedirectResponse('/');
         }
+
+        $flash = $request->getAttribute('_messages');
+        $flash->warning("These credentials do not match our records.");
 
         $this->incrementLoginAttempts($request);
 
@@ -110,7 +109,25 @@ class LoginAction
      */
     protected function formInvalid(Request $request, Response $response, callable $next)
     {
+        $html = $this->template->render('app::auth/login', [
+            'error' => $this->validator->errors()]);
+        $stream = new Stream('php://memory', 'wb+');
+        $stream->write($html);
+        return $response
+            ->withBody($stream)
+            ->withHeader('Content-Type', 'text/html');
         return $this->get($request, $response, $next);
+    }
+
+    /**
+     *
+     */
+    protected function sendResponseLockout($request)
+    {
+        $minutes = floor($this->secondsRemainingOnLockout($request) / 60);
+        $flash = $request->getAttribute('_messages');
+        $flash->warning("Too many login attempts. Please try again in $minutes minutes");
+        return new RedirectResponse($request->getUri()->getPath());
     }
 
     /**
@@ -124,7 +141,35 @@ class LoginAction
         return $this->limiter->tooManyAttempts(
             $this->getThrottleKey($request),
             $this->maxLoginAttempts(),
+            null,
             $this->lockoutTime()
+        );
+    }
+
+    /**
+     * Get the lockout seconds.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return int
+     */
+    protected function secondsRemainingOnLockout(Request $request)
+    {
+        return $this->limiter->availableIn(
+            $this->getThrottleKey($request)
+        );
+    }
+
+    /**
+     * Determine how many retries are left for the user.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return int
+     */
+    protected function retriesLeft(Request $request)
+    {
+        return $this->limiter->retriesLeft(
+            $this->getThrottleKey($request),
+            $this->maxLoginAttempts()
         );
     }
 
@@ -164,7 +209,7 @@ class LoginAction
      */
     protected function lockoutTime()
     {
-        return 60;
+        return 600;
     }
 
     /**
@@ -177,10 +222,10 @@ class LoginAction
             return $remote[0];
         }
         $proxies = $request->getHeader('X_FORWARDED_FOR');
-        $proxies = array_map('trim', explode(',', $proxies[0]));
         if (empty($proxies)) {
             return '';
         }
+        $proxies = array_map('trim', explode(',', $proxies[0]));
         $ip = array_pop($proxies);
         return $ip;
     }
@@ -191,7 +236,7 @@ class LoginAction
     protected function validateLogin(Request $request)
     {
         return $this->isValid($request, [
-            'email' => 'required',
+            'email' => 'required|email',
             'password' => 'required'
         ]);
     }

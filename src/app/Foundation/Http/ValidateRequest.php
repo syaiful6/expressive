@@ -9,6 +9,7 @@ use Illuminate\Contracts\Validation\Factory as ValidationFactory;
 
 trait ValidateRequest
 {
+    protected $validator;
     /**
      *
      */
@@ -18,7 +19,7 @@ trait ValidateRequest
         array $messages = [],
         array $customAttributes = []
     ) {
-        $validator = $this->getValidationFactory()->make(
+        $this->validator = $validator = $this->getValidationFactory()->make(
             $this->getAllRequestInput($request),
             $rules,
             $messages,

@@ -145,8 +145,8 @@ class Database extends BaseCache
             $key,
             $delta,
             $version,
-            function ($current, $value) {
-                return $current - $value;
+            function ($current, $delta) {
+                return $current - $delta;
             }
         );
     }
@@ -161,11 +161,10 @@ class Database extends BaseCache
      */
     protected function incrementOrDecrement($key, $delta, $version, Closure $callback)
     {
-        return $this->connection->transaction(function () use ($key, $delta, $callback) {
+        return $this->connection->transaction(function () use ($key, $version, $delta, $callback) {
             $prefixed = $this->makeKey($key, $version);
 
             $cache = $this->table()->where('key', $prefixed)->lockForUpdate()->first();
-
             if ($cache === null) {
                 return false;
             }
@@ -194,7 +193,7 @@ class Database extends BaseCache
      */
     protected function internalset($mode, $key, $value, $version, $timeout)
     {
-        $expires = $this->getBackendTimeout($timeout);
+        $expiration = $this->getBackendTimeout($timeout);
         $value = $this->encrypter->encrypt($value);
         $count = $this->table()->count();
         $now = time();
@@ -209,7 +208,7 @@ class Database extends BaseCache
             }
 
             if ($result && ($mode === 'set' || (
-                $mode === 'add' && $result->expires < $now))
+                $mode === 'add' && $result->expiration < $now))
             ) {
                 $this->table()->where('key', '=', $key)->update(compact('value', 'expiration'));
             } else {

@@ -11,6 +11,7 @@ class WebMiddlewareFactory
         'App\Session\SessionMiddleware',
         'App\Middleware\Csrf',
         'App\Auth\AuthenticationMiddleware',
+        'App\Flash\FlashMessageMiddleware',
         'App\Middleware\ContextProcessor',
     ];
 
