@@ -194,17 +194,31 @@ abstract class BaseHttpHandler
     {
         $this->logException($e);
         if (! $this->isHeaderSent) {
-            $this->result = $this->errorOutput($this->request, [$this, 'startResponse']);
-            $this->finishResponse();
+            if ($e instanceof \UnexpectedValueException && strpos($e->message(), 'protocol version')) {
+                $this->sendClientError($this->request, [$this, 'startResponse'], $e->message());
+            } else {
+                $this->result = $this->errorOutput($this->request, [$this, 'startResponse']);
+                $this->finishResponse();
+            }
         }
     }
 
     /**
      *
      */
-    private function errorOutput($request, $startResponse, $excInfo = null)
+    protected function sendClientError($request, $startResponse)
     {
-        $startResponse($this->errorStatus, $this->errorHeaders, $excInfo);
+        $startResponse(400, ['Content-Type', 'text/plain']);
+
+        return ['Bad request. Invalid HTTP Version'];
+    }
+
+    /**
+     *
+     */
+    private function errorOutput($request, $startResponse)
+    {
+        $startResponse($this->errorStatus, $this->errorHeaders);
 
         return [$this->errorBody];
     }

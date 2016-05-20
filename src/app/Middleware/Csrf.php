@@ -52,7 +52,7 @@ class Csrf
      */
     protected function rejectRequest($reason)
     {
-        throw new TokenMismatchException($reason);
+        return new TokenMismatchException($reason);
     }
 
     /**
@@ -92,9 +92,9 @@ class Csrf
                     ? $server['HTTP_REFERER']
                     : false;
                 if (!$referer) {
-                    $this->rejectRequest(
+                    return $next($request, $response, $this->rejectRequest(
                         'Referer checking failed - no Referer.'
-                    );
+                    ));
                 }
                 $goodReferrer = sprintf('https://$s:%s/', $uri->getHost(), $uri->getPort());
                 if (!$this->sameOrigin($referer, $goodReferrer)) {
@@ -103,11 +103,11 @@ class Csrf
                         $referer,
                         $goodReferrer
                     );
-                    $this->rejectRequest($reason);
+                    return $next($request, $response, $this->rejectRequest($reason));
                 }
             }
             if (!$csrftoken) {
-                $this->rejectRequest('CSRF cookie not set.');
+                return $next($request, $response, $this->rejectRequest('CSRF cookie not set.'));
             }
 
             $requestcsrftoken = '';
@@ -121,7 +121,9 @@ class Csrf
                 $requestcsrftoken = $request->getHeader('X-CSRFTOKEN');
             }
             if (! $this->compareCsrfToken($requestcsrftoken, $csrftoken)) {
-                $this->rejectRequest('CSRF token missing or incorrect.');
+                return $next($request, $response, $this->rejectRequest(
+                    'CSRF token missing or incorrect.'
+                ));
             }
         }
         $request = $request

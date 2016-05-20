@@ -23,7 +23,7 @@ class QueueMiddleware
     public function __invoke(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        callable $next = null
+        callable $next
     ) {
         $response = $next($request, $response);
 

@@ -122,6 +122,6 @@ class SimpleHttpHandler extends BaseHttpHandler
     protected function logException($e)
     {
         $stderr = $this->getStdErr();
-        $stderr->write($e->getTraceAsString());
+        //$stderr->write($e->getTraceAsString());
     }
 }

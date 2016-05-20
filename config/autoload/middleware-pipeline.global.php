@@ -22,6 +22,8 @@ return [
                 App\Middleware\GenericMiddlewareFactory::class,
             'App\Foundation\Http\WebMiddleware' =>
                 App\Foundation\Http\WebMiddlewareFactory::class,
+            'App\Middleware\ErrorHandler' =>
+                App\Middleware\GenericMiddlewareFactory::class,
         ],
     ],
     // This can be used to seed pre- and/or post-routing middleware
@@ -78,6 +80,7 @@ return [
         'error' => [
             'middleware' => [
                 // Add error middleware here.
+                'App\Middleware\ErrorHandler'
             ],
             'error'    => true,
             'priority' => -10000,

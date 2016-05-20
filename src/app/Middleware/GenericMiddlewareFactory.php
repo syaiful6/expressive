@@ -30,6 +30,14 @@ class GenericMiddlewareFactory
     /**
      *
      */
+    protected function createErrorHandler($container)
+    {
+        return new ErrorHandler($container->get(TemplateRendererInterface::class));
+    }
+
+    /**
+     *
+     */
     private function createCsrf($container)
     {
         $config = $container->has('config') ? $container->get('config') : [];

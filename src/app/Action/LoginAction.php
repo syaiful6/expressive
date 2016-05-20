@@ -8,6 +8,7 @@ use App\Cache\RateLimiter;
 use Zend\Diactoros\Stream;
 use App\Foundation\Http\BaseActionMiddleware;
 use Zend\Diactoros\Response\RedirectResponse;
+use App\Flash\FlashMessageInterface as FlashMessage;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
@@ -31,16 +32,23 @@ class LoginAction extends BaseActionMiddleware
     protected $limiter;
 
     /**
+     * App\Flash\FlashMessageInterface
+     */
+    protected $flash;
+
+    /**
      *
      */
     public function __construct(
         Authenticator $authenticator,
         Template $template,
-        RateLimiter $limiter
+        RateLimiter $limiter,
+        FlashMessage $flash
     ) {
         $this->authenticator = $authenticator;
         $this->template = $template;
         $this->limiter = $limiter;
+        $this->flash = $flash;
     }
 
     /**
@@ -91,17 +99,16 @@ class LoginAction extends BaseActionMiddleware
         $user = $this->authenticator->authenticate($credential);
         if ($user) {
             $this->authenticator->login($request, $user);
-            $flash = $request->getAttribute('_messages');
-            $flash->info("Welcome {$user->name}.");
+            $this->flash->info("Welcome {$user->name}.");
+            $this->clearLoginAttempts($request);
             return new RedirectResponse('/');
         }
 
-        $flash = $request->getAttribute('_messages');
-        $flash->warning("These credentials do not match our records.");
+        $this->flash->warning("These credentials do not match our records.");
 
         $this->incrementLoginAttempts($request);
 
-        return $this->get($request, $response, $next);
+        return new RedirectResponse($request->getUri()->getPath());
     }
 
     /**
@@ -110,13 +117,13 @@ class LoginAction extends BaseActionMiddleware
     protected function formInvalid(Request $request, Response $response, callable $next)
     {
         $html = $this->template->render('app::auth/login', [
-            'error' => $this->validator->errors()]);
+            'error' => $this->validator->errors()
+        ]);
         $stream = new Stream('php://memory', 'wb+');
         $stream->write($html);
         return $response
             ->withBody($stream)
             ->withHeader('Content-Type', 'text/html');
-        return $this->get($request, $response, $next);
     }
 
     /**
@@ -125,8 +132,7 @@ class LoginAction extends BaseActionMiddleware
     protected function sendResponseLockout($request)
     {
         $minutes = floor($this->secondsRemainingOnLockout($request) / 60);
-        $flash = $request->getAttribute('_messages');
-        $flash->warning("Too many login attempts. Please try again in $minutes minutes");
+        $this->flash->warning("Too many login attempts. Please try again in $minutes minutes");
         return new RedirectResponse($request->getUri()->getPath());
     }
 
@@ -157,6 +163,14 @@ class LoginAction extends BaseActionMiddleware
         return $this->limiter->availableIn(
             $this->getThrottleKey($request)
         );
+    }
+
+    /**
+     *
+     */
+    protected function clearLoginAttempts(Request $request)
+    {
+        $this->limiter->clear($this->getThrottleKey($request));
     }
 
     /**
