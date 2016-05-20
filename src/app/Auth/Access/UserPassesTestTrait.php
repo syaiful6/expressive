@@ -43,7 +43,7 @@ trait UserPassesTestTrait
     /**
      *
      */
-    public function __invoke(Request $request, Request $response, callable $next)
+    public function __invoke(Request $request, Response $response, callable $next)
     {
         $callback = $this->getTestCallback($request);
         if ($callback()) {

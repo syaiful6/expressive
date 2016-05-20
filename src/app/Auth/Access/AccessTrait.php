@@ -21,7 +21,7 @@ trait AccessTrait
      */
     protected function handleNoPermission(
         Request $request,
-        Request $response,
+        Response $response,
         callable $next
     ) {
         if ($this->shouldPipeToError()) {

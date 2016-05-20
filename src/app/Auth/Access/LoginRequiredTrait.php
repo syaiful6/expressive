@@ -12,7 +12,7 @@ trait LoginRequiredTrait
     /**
      *
      */
-    public function __invoke(Request $request, Request $response, callable $next)
+    public function __invoke(Request $request, Response $response, callable $next)
     {
         $user = $request->getAttribute('user');
         assert(method_exists($user, 'isAuthenticate'));
