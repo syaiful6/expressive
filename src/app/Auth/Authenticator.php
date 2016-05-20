@@ -86,6 +86,10 @@ class Authenticator implements EventManagerAwareInterface
     {
         $session = $this->session;
 
+        if (! $session instanceof Store) {
+            throw new \RuntimeException('logged in without session on authenticator');
+        }
+
         $sessionAuthHash = '';
         if (!$user) {
             $user = $request->getAttribute('user', false);
@@ -145,7 +149,9 @@ class Authenticator implements EventManagerAwareInterface
         }
         $this->userLoggedOut($user, $request);
         // flush the session
-        $this->session->flush();
+        if ($this->session instanceof Store) {
+            $this->session->flush();
+        }
         // set the request user attribute as anonymous user
         return $request->withAttribute('user', new AnonymousUser());
     }
@@ -156,6 +162,9 @@ class Authenticator implements EventManagerAwareInterface
     public function user()
     {
         $session = $this->session;
+        if (! $session instanceof Store) {
+            return new AnonymousUser();
+        }
         $user = null;
         try {
             $id = $session[static::SESSION_KEY];

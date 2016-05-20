@@ -3,8 +3,8 @@
 namespace App\Auth\Exceptions;
 
 /**
- * throwing by backend to stop the attempts to authenticate user - the user should
- * not be allowed in at all.
+ * The user did not have permission to do that
+ *
  */
 class PermissionDenied extends \Exception
 {

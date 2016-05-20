@@ -21,7 +21,7 @@ return [
         [
             'name' => 'login',
             'path' => '/login',
-            'middleware' => 'App\Action\LoginAction',
+            'middleware' => 'App\Action\Auth\LoginAction',
             'allowed_methods' => ['GET', 'POST']
         ]
     ],

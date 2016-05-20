@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Action;
+namespace App\Action\Auth;
 
-use Illuminate\Support\MessageBag;
 use App\Auth\Authenticator;
 use App\Cache\RateLimiter;
 use Zend\Diactoros\Stream;
+use Illuminate\Support\MessageBag;
 use App\Foundation\Http\BaseActionMiddleware;
 use Zend\Diactoros\Response\RedirectResponse;
 use App\Flash\FlashMessageInterface as FlashMessage;
