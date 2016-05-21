@@ -1,5 +1,26 @@
 {% extends "@layout/base.twig.html" %}
 {% block title %}Petsitter{% endblock %}
+{% block before_content %}
+<div class="jumbotron jumbotron-home">
+  <div class="container">
+    <h1 class="jumbotron-title display-heading">Love your pet</h1>
+    <p class="jumbutron-lead display-intro">Find and book local pet sitters</p>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-10 col-md-offset-1">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
 {% block content %}
 <div class="container">
   <div class="row">

@@ -27,7 +27,7 @@ trait AccessTrait
         if ($this->shouldPipeToError()) {
             $error = new PermissionDenied($this->getPermissionDeniedMessage());
 
-            return $next($request, $response, $error)
+            return $next($request, $response, $error);
         }
 
         $flash = $request->getAttribute('_messages');

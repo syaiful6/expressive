@@ -201,6 +201,8 @@ class PasswordBroker implements PasswordBrokerContract
                 'The model should at least have method getEmail'
             );
         }
+
+        return $user;
     }
 
     /**

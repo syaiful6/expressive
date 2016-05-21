@@ -34,7 +34,8 @@ return [
                 'App\Foundation\EncrypterFactory',
             'App\Flash\Storage\BaseStorage' => 'App\Flash\FlashServiceFactory',
             'App\Flash\FlashMessageInterface' => 'App\Flash\FlashServiceFactory',
-            'App\Flash\FlashMessageMiddleware' => 'App\Flash\FlashServiceFactory'
+            'App\Flash\FlashMessageMiddleware' => 'App\Flash\FlashServiceFactory',
+            'League\Tactician\CommandBus' => 'App\Foundation\CommandBusFactory',
         ],
         'abstract_factories' => [
             'App\Foundation\AbstractFactoryReflection'

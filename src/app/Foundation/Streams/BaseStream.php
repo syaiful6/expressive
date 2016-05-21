@@ -77,7 +77,7 @@ abstract class BaseStream implements StreamInterface, IteratorAggregate
      */
     public function flush()
     {
-        $this->_checkClosed();
+        $this->checkClosed();
         return true;
     }
 
@@ -178,7 +178,7 @@ abstract class BaseStream implements StreamInterface, IteratorAggregate
                 break;
             }
             $res .= $b;
-            if ("\n" === substr($res, -strlen("\n"))) {
+            if ("\n" === substr($res, -1)) {
                 break;
             }
         }

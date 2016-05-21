@@ -51,5 +51,8 @@ return [
         'App\Database\Console\Commands\InstallCommand',
         'App\Database\Console\Commands\MakeMigration',
         'App\Database\Console\Commands\Migrate',
+        'App\Queue\Console\Commands\FailedTable',
+        'App\Queue\Console\Commands\JobTable',
+        'App\Queue\Console\Commands\Listen'
     ]
 ];

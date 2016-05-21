@@ -46,7 +46,7 @@ trait UserPassesTestTrait
     public function __invoke(Request $request, Response $response, callable $next)
     {
         $callback = $this->getTestCallback($request);
-        if ($callback()) {
+        if (!$callback()) {
             return $this->handleNoPermission($request, $response, $next);
         }
 

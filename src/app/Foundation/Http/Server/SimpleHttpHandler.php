@@ -12,6 +12,8 @@ class SimpleHttpHandler extends BaseHttpHandler
     protected $stderr;
 
     protected $httpVersion = '1.0';
+
+    protected $obLevel;
     /**
      *
      */
@@ -22,6 +24,36 @@ class SimpleHttpHandler extends BaseHttpHandler
 
         $this->stdout = $stdout ?: new Stream('php://output', 'wb');
         $this->stderr = $this->stderr ?: new Stream('php://stderr', 'wb');
+    }
+
+    /**
+     *
+     */
+    public function serve($app)
+    {
+        ob_start();
+
+        $this->obLevel = ob_get_level();
+
+        parent::serve($app);
+    }
+
+    /**
+     *
+     */
+    protected function close()
+    {
+        try {
+            if (method_exists($this->result, 'close')) {
+                $this->result->close();
+            }
+        } finally {
+            $this->headers = $this->request = $this->status = $this->result = null;
+
+            $this->isHeaderSent = false;
+            $this->obLevel = null;
+            $this->sentLen = 0;
+        }
     }
 
     /**
@@ -53,19 +85,18 @@ class SimpleHttpHandler extends BaseHttpHandler
      *
      * @param int|null $maxBufferLevel Flush up to this buffer level.
      */
-    protected function flush($maxBufferLevel = null)
+    protected function flush()
     {
         if (method_exists($this->stdout, 'flush')) {
             $this->stdout->flush();
 
             return;
         }
-        if (null === $maxBufferLevel) {
-            $maxBufferLevel = ob_get_level();
-        }
+        $maxBufferLevel = $this->obLevel;
 
         while (ob_get_level() > $maxBufferLevel) {
             ob_end_flush();
+            flush();
         }
     }
 

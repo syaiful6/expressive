@@ -45,11 +45,13 @@
             </li>
           {% else %}
             <li><a href="{{ url('login') }}">Login</a></li>
+            <li><a href="{{ url('register') }}">Register</a></li>
           {% endif %}
         </ul>
       </div>
     </div>
   </nav>
+  {% block before_content %}
   <div class="container">
     <div class="row">
       <div class="col-md-10 col-md-offset-1">
@@ -62,7 +64,8 @@
         {% endif %}
       </div>
     </div>
-  {% block before_content %}{% endblock %}
+  </div>
+  {% endblock %}
   {% block content %}{% endblock %}
   {% block after_content %}{% endblock %}
 </body>

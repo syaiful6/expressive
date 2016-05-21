@@ -237,7 +237,7 @@ class BufferedStream extends BaseStream
      */
     public function eof()
     {
-        return $this->pos === strlen($this->buffer);
+        return $this->pos >= strlen($this->buffer);
     }
 
     /**

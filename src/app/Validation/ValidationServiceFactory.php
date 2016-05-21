@@ -34,7 +34,13 @@ class ValidationServiceFactory
         if ($container->has(TranslatorInterface::class)) {
             $translator = $container->get(TranslatorInterface::class);
 
-            return new Factory($translator, $container);
+            $factory = new Factory($translator, $container);
+
+            if ($container->has(PresenceVerifierInterface::class)) {
+                $presence = $container->get(PresenceVerifierInterface::class);
+                $factory->setPresenceVerifier($presence);
+            }
+            return $factory;
         }
 
         throw new \RuntimeException('no translation service');

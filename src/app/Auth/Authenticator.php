@@ -102,8 +102,8 @@ class Authenticator implements EventManagerAwareInterface
         }
 
         if ($session->contains(static::SESSION_KEY)) {
-            $sessionUserId = (int) $session[static::SESSION_KEY];
-            if ($sessionUserId !== (int) $user->getKey() || (
+            $sessionUserId = $session[static::SESSION_KEY];
+            if ($sessionUserId !== $user->getKey() || (
                 $sessionAuthHash &&
                     ! hash_equals($sessionAuthHash, $session->get(static::HASH_SESSION_KEY))
             )) {

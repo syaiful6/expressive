@@ -23,6 +23,12 @@ return [
             'path' => '/login',
             'middleware' => 'App\Action\Auth\LoginAction',
             'allowed_methods' => ['GET', 'POST']
+        ],
+        [
+            'name' => 'register',
+            'path' => '/register',
+            'middleware' => 'App\Action\Auth\RegisterAction',
+            'allowed_methods' => ['GET', 'POST']
         ]
     ],
 ];

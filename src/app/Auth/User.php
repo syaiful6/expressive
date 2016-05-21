@@ -18,6 +18,11 @@ class User extends Model
     ];
 
     /**
+     *
+     */
+    public $timestamps = false;
+
+    /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
