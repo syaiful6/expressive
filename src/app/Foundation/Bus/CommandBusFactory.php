@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Foundation;
+namespace App\Foundation\Bus;
 
 use League\Tactician\CommandBus;
 use Illuminate\Contracts\Queue\Queue;

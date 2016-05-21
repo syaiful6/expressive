@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Action\Auth;
+namespace App\Auth\Actions;
 
 use App\Auth\User;
 use App\Auth\ModelBackend;
+use App\Auth\Authenticator;
 use App\DateTime\DateTime;
 use Zend\Diactoros\Stream;
 use Illuminate\Support\MessageBag;
@@ -12,18 +13,12 @@ use App\Foundation\Http\BaseActionMiddleware;
 use Zend\Diactoros\Response\RedirectResponse;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Zend\Expressive\Template\TemplateRendererInterface as Template;
 
 class RegisterAction extends BaseActionMiddleware
 {
     use UserPassesTestTrait {
         __invoke as userPassedTest;
     }
-
-    /**
-     *
-     */
-    protected $template;
 
     /**
      * @var App\Auth\Authenticator
@@ -33,9 +28,8 @@ class RegisterAction extends BaseActionMiddleware
     /**
      *
      */
-    public function __construct(Template $template, Authenticator $authenticator)
+    public function __construct(Authenticator $authenticator)
     {
-        $this->template = $template;
         $this->authenticator = $authenticator;
     }
 
@@ -74,7 +68,7 @@ class RegisterAction extends BaseActionMiddleware
      */
     public function get(Request $request, Response $response, callable $next)
     {
-        $html = $this->template->render('app::auth/register', [
+        $html = $this->renderer->render('app::auth/register', [
             'error' => new MessageBag()
         ]);
         $stream = new Stream('php://memory', 'wb+');
@@ -103,7 +97,7 @@ class RegisterAction extends BaseActionMiddleware
      */
     protected function formInvalid(Request $request, Response $response, callable $next)
     {
-        $html = $this->template->render('app::auth/register', [
+        $html = $this->renderer->render('app::auth/register', [
             'error' => $this->validator->errors()
         ]);
         $stream = new Stream('php://memory', 'wb+');

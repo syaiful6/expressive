@@ -21,7 +21,7 @@ return [
             App\Middleware\ContextProcessor::class =>
                 App\Middleware\GenericMiddlewareFactory::class,
             'App\Foundation\Http\WebMiddleware' =>
-                App\Foundation\Http\WebMiddlewareFactory::class,
+                'Petsitter\Http\Middleware\WebMiddlewareFactory',
             'App\Middleware\ErrorHandler' =>
                 App\Middleware\GenericMiddlewareFactory::class,
         ],

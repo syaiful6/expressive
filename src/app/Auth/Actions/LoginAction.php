@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Action\Auth;
+namespace App\Auth\Actions;
 
 use App\Auth\Authenticator;
 use App\Cache\RateLimiter;
@@ -12,7 +12,6 @@ use App\Flash\FlashMessageInterface as FlashMessage;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
-use Zend\Expressive\Template\TemplateRendererInterface as Template;
 
 class LoginAction extends BaseActionMiddleware
 {
@@ -20,11 +19,6 @@ class LoginAction extends BaseActionMiddleware
      * @var App\Auth\Authenticator
      */
     protected $authenticator;
-
-    /**
-     * @var Zend\Expressive\Template\TemplateRendererInterface
-     */
-    protected $template;
 
     /**
      * @var App\Cache\RateLimiter
@@ -41,12 +35,10 @@ class LoginAction extends BaseActionMiddleware
      */
     public function __construct(
         Authenticator $authenticator,
-        Template $template,
         RateLimiter $limiter,
         FlashMessage $flash
     ) {
         $this->authenticator = $authenticator;
-        $this->template = $template;
         $this->limiter = $limiter;
         $this->flash = $flash;
     }
@@ -60,7 +52,7 @@ class LoginAction extends BaseActionMiddleware
         if ($user->isAuthenticate()) {
             return new RedirectResponse('/');
         }
-        $html = $this->template->render('app::auth/login', ['error' => new MessageBag]);
+        $html = $this->renderer->render('app::auth/login', ['error' => new MessageBag]);
         $stream = new Stream('php://memory', 'wb+');
         $stream->write($html);
         return $response
@@ -116,7 +108,7 @@ class LoginAction extends BaseActionMiddleware
      */
     protected function formInvalid(Request $request, Response $response, callable $next)
     {
-        $html = $this->template->render('app::auth/login', [
+        $html = $this->renderer->render('app::auth/login', [
             'error' => $this->validator->errors()
         ]);
         $stream = new Stream('php://memory', 'wb+');

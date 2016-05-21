@@ -35,13 +35,13 @@ return [
             'App\Flash\Storage\BaseStorage' => 'App\Flash\FlashServiceFactory',
             'App\Flash\FlashMessageInterface' => 'App\Flash\FlashServiceFactory',
             'App\Flash\FlashMessageMiddleware' => 'App\Flash\FlashServiceFactory',
-            'League\Tactician\CommandBus' => 'App\Foundation\CommandBusFactory',
+            'League\Tactician\CommandBus' => 'App\Foundation\Bus\CommandBusFactory',
         ],
         'abstract_factories' => [
             'App\Foundation\AbstractFactoryReflection'
         ],
         'initializers' => [
-            'App\Foundation\ValidatorFactoryAwareInitializer'
+            'App\Foundation\GenericFactoryInitializer'
         ]
     ],
 ];

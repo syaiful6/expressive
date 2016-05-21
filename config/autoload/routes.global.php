@@ -15,19 +15,19 @@ return [
         [
             'name'  => 'welcome',
             'path'  => '/',
-            'middleware' => 'App\Action\WelcomeAction',
+            'middleware' => 'Petsitter\Http\Actions\WelcomeAction',
             'allowed_methods' => ['GET'],
         ],
         [
             'name' => 'login',
             'path' => '/login',
-            'middleware' => 'App\Action\Auth\LoginAction',
+            'middleware' => 'Petsitter\Http\Actions\Auth\LoginAction',
             'allowed_methods' => ['GET', 'POST']
         ],
         [
             'name' => 'register',
             'path' => '/register',
-            'middleware' => 'App\Action\Auth\RegisterAction',
+            'middleware' => 'Petsitter\Http\Actions\Auth\RegisterAction',
             'allowed_methods' => ['GET', 'POST']
         ]
     ],
