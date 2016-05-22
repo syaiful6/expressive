@@ -24,11 +24,6 @@ class Authenticator implements EventManagerAwareInterface
     protected $backends;
 
     /**
-     * @var Zend\EventManager\EventManagerInterface
-     */
-    protected $events;
-
-    /**
      * @var App\Session\Store
      */
     protected $session;
