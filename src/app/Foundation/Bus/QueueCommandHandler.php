@@ -5,7 +5,10 @@ namespace App\Foundation\Bus;
 use League\Tactician\Middleware;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use League\Tactician\Handler\Locator\HandlerLocator;
 use League\Tactician\Exception\CanNotInvokeHandlerException;
+use League\Tactician\Handler\CommandNameExtractor\CommandNameExtractor;
+use League\Tactician\Handler\MethodNameInflector\MethodNameInflector;
 
 class QueueCommandHandler implements Middleware
 {
@@ -13,10 +16,29 @@ class QueueCommandHandler implements Middleware
     protected $queue;
 
     /**
+     * @var CommandNameExtractor
+     */
+    protected $commandNameExtractor;
+
+    /**
+     * @var HandlerLocator
+     */
+    protected $handlerLocator;
+
+    /**
+     * @var MethodNameInflector
+     */
+    protected $methodNameInflector;
+
+    /**
      *
      */
-    public function __construct(Queue $queue)
-    {
+    public function __construct(
+        Queue $queue,
+        CommandNameExtractor $commandNameExtractor,
+        HandlerLocator $handlerLocator,
+        MethodNameInflector $methodNameInflector
+    ) {
         $this->queue = $queue;
     }
 
@@ -36,8 +58,12 @@ class QueueCommandHandler implements Middleware
             return $next($command);
         }
 
-        $handler = function () use ($command) {
+        $handler = function ($job) use ($command) {
             $this->executeCommand($command);
+
+            if (! $job->isDeletedOrReleased()) {
+                $job->delete();
+            }
         };
 
         $queue = $this->queue;
@@ -62,16 +88,20 @@ class QueueCommandHandler implements Middleware
      */
     protected function executeCommand($command)
     {
-        if (method_exists($command, 'handle')) {
-            return $command->handle();
-        } elseif (is_callable($command)) {
-            return $command();
+        $commandName = $this->commandNameExtractor->extract($command);
+        $handler = $this->handlerLocator->getHandlerForCommand($commandName);
+        $methodName = $this->methodNameInflector->inflect($command, $handler);
+
+        // is_callable is used here instead of method_exists, as method_exists
+        // will fail when given a handler that relies on __call.
+        if (!is_callable([$handler, $methodName])) {
+            throw CanNotInvokeHandlerException::forCommand(
+                $command,
+                "Method '{$methodName}' does not exist on handler"
+            );
         }
 
-        throw new CanNotInvokeHandlerException(sprintf(
-            'can\'t invoke command %s',
-            get_class($command)
-        ));
+        return $handler->{$methodName}($command);
     }
 
     /**

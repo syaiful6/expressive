@@ -25,10 +25,22 @@ return [
             'allowed_methods' => ['GET', 'POST']
         ],
         [
+            'name' => 'logout',
+            'path' => '/logout',
+            'middleware' => 'App\Foundation\Auth\LogoutAction',
+            'allowed_methods' => ['GET']
+        ],
+        [
             'name' => 'register',
             'path' => '/register',
             'middleware' => 'Petsitter\Http\Actions\Auth\RegisterAction',
             'allowed_methods' => ['GET', 'POST']
-        ]
+        ],
+        [
+            'name' => 'reset_password',
+            'path' => '/password/reset',
+            'middleware' => 'Petsitter\Http\Actions\Auth\ResetsPasswords',
+            'allowed_methods' => ['GET', 'POST']
+        ],
     ],
 ];

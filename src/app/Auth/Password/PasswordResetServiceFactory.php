@@ -2,7 +2,7 @@
 
 namespace App\Auth\Password;
 
-use Illuminate\Arr;
+use Illuminate\Support\Arr;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Database\ConnectionInterface;
 use Interop\Container\ContainerInterface as Container;

@@ -9,7 +9,7 @@ return [
             'App\Auth\ModelBackend' => 'App\Auth\AuthServiceFactory',
             'App\Auth\Authenticator' => 'App\Auth\AuthServiceFactory',
             'App\Auth\AuthenticationMiddleware' => 'App\Auth\AuthServiceFactory',
-            'App\Auth\Passwords\TokenRepositoryInterface'
+            'App\Auth\Password\TokenRepositoryInterface'
                 => 'App\Auth\Password\PasswordResetServiceFactory',
             'Illuminate\Contracts\Auth\PasswordBroker'
                 => 'App\Auth\Password\PasswordResetServiceFactory',
@@ -23,7 +23,7 @@ return [
         'passwords' => [
             'user' => [
                 'table' => 'password_resets',
-                'template' => 'app::auth/password',
+                'template' => 'app::auth/email/reset',
                 'expire' => 60
             ]
         ]

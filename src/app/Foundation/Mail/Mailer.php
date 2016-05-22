@@ -49,7 +49,7 @@ class Mailer implements MailerContract
      */
     public function __construct(Renderer $template, Swift_Mailer $swift)
     {
-        $this->template = $renderer;
+        $this->template = $template;
         $this->swift = $swift;
     }
 

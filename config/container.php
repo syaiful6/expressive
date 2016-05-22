@@ -2,7 +2,7 @@
 
 use Zend\ServiceManager\Config;
 use Zend\ServiceManager\ServiceManager;
-
+use App\Foundation\ServiceManagerProxy;
 // Load configuration
 $config = require __DIR__ . '/config.php';
 //file_put_contents(__DIR__.'/test.res', var_export($config['dependencies'], true));
@@ -13,4 +13,6 @@ $container = new ServiceManager();
 // Inject config
 $container->setService('config', $config);
 
+// we proxy the container
+$container = new ServiceManagerProxy($container);
 return $container;

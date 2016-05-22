@@ -14,8 +14,6 @@ return [
                 => Session\SessionMiddlewareFactory::class,
             App\Cookie\QueueMiddleware::class
                 => App\Cookie\QueueMiddlewareFactory::class,
-            App\Database\CapsuleMiddleware::class =>
-                App\Database\CapsuleMiddlewareFactory::class,
             App\Middleware\Csrf::class =>
                 App\Middleware\GenericMiddlewareFactory::class,
             App\Middleware\ContextProcessor::class =>
@@ -56,7 +54,7 @@ return [
                 // - bootstrapping
                 // - pre-conditions
                 // - modifications to outgoing responses
-                App\Database\CapsuleMiddleware::class,
+                'App\Database\CapsuleMiddleware',
                 Helper\ServerUrlMiddleware::class,
             ],
             'priority' => 10000,

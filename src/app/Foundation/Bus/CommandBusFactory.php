@@ -19,18 +19,21 @@ class CommandBusFactory
     public function __invoke(Container $container)
     {
         $locator = new CallableLocator(function ($commandName) use ($container) {
-            $reflect = new \ReflectionClass($commandName);
-            $namespace = $reflect->getNameSpace();
-            $commandName = $namespace . '\Workers\\' . $reflect->getShortName();
+            $commandName = str_replace('Jobs', 'Workers', $commandName);
             return $container->get($commandName);
         });
 
-        $queued = new QueueCommandHandler($container->get(Queue::class));
-
         $handlerMiddleware = new CommandHandlerMiddleware(
-            new ClassNameExtractor(),
+            $extractor = new ClassNameExtractor(),
             $locator,
-            new InvokeInflector()
+            $inflector = new InvokeInflector()
+        );
+
+        $queued = new QueueCommandHandler(
+            $container->get(Queue::class),
+            $extractor,
+            $locator,
+            $inflector
         );
 
         return new CommandBus([new LockingMiddleware(), $queued, $handlerMiddleware]);

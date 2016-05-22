@@ -69,6 +69,17 @@ class DatabaseTokenRepository implements TokenRepositoryInterface
     }
 
     /**
+     * Delete all existing reset tokens from the database.
+     *
+     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $user
+     * @return int
+     */
+    protected function deleteExisting($email)
+    {
+        return $this->getTable()->where('email', $email)->delete();
+    }
+
+    /**
      * Determine if a token record exists and is valid.
      *
      * @param  object  $user
@@ -79,7 +90,7 @@ class DatabaseTokenRepository implements TokenRepositoryInterface
     {
         $this->sanityCheck($user);
 
-        $email = $user->getEmailForPasswordReset();
+        $email = $user->getEmail();
         $token = (array) $this->getTable()->where('email', $email)->where('token', $token)->first();
 
         return $token && ! $this->tokenExpired($token);
@@ -138,7 +149,7 @@ class DatabaseTokenRepository implements TokenRepositoryInterface
      */
     public function deleteExpired()
     {
-        $delta = TimeDelta::seconds($this->expires)
+        $delta = TimeDelta::seconds($this->expires);
         $expiredAt = DateTime::now()->sub($delta);
 
         $this->getTable()->where('created_at', '<', $expiredAt)->delete();

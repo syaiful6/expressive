@@ -87,9 +87,18 @@ class PasswordBroker implements PasswordBrokerContract
         }
 
         $template = $this->emailTemplate;
+        $context = compact('token', 'user');
+        $context['email'] = $user->getEmail();
+        $context['uid'] = strtr(
+            base64_encode($user->getKey()),
+            '+/',
+            '-_'
+        );
+        $context['uid'] = rtrim($context['uid'], "\n=");
+
         return $this->mailer->send(
             $template,
-            compact('token', 'user'),
+            $context,
             function ($m) use ($user, $token, $callback) {
                 $m->to($user->getEmail());
 

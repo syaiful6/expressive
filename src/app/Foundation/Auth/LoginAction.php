@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Actions;
+namespace App\Foundation\Auth;
 
 use App\Auth\Authenticator;
 use App\Cache\RateLimiter;
@@ -12,6 +12,7 @@ use App\Flash\FlashMessageInterface as FlashMessage;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Contracts\Validation\Factory as ValidationFactory;
+use function App\Foundation\trans;
 
 class LoginAction extends BaseActionMiddleware
 {
@@ -96,11 +97,21 @@ class LoginAction extends BaseActionMiddleware
             return new RedirectResponse('/');
         }
 
-        $this->flash->warning("These credentials do not match our records.");
+        $this->flash->warning($this->getInvalidLoginMessage());
 
         $this->incrementLoginAttempts($request);
 
         return new RedirectResponse($request->getUri()->getPath());
+    }
+
+    /**
+     *
+     */
+    protected function getInvalidLoginMessage()
+    {
+        return trans()->has('auth.failed')
+        ? trans()->get('auth.failed')
+        : 'These credentials do not match our records.';
     }
 
     /**
@@ -124,8 +135,21 @@ class LoginAction extends BaseActionMiddleware
     protected function sendResponseLockout($request)
     {
         $minutes = floor($this->secondsRemainingOnLockout($request) / 60);
-        $this->flash->warning("Too many login attempts. Please try again in $minutes minutes");
+        $this->flash($this->getLockoutErrorMessage($minutes));
         return new RedirectResponse($request->getUri()->getPath());
+    }
+
+    /**
+     * Get the login lockout error message.
+     *
+     * @param  int  $seconds
+     * @return string
+     */
+    protected function getLockoutErrorMessage($minutes)
+    {
+        return trans()->has('auth.throttle')
+            ? trans()->get('auth.throttle', ['minutes' => $minutes])
+            : 'Too many login attempts. Please try again in '.$minutes.' minutes.';
     }
 
     /**

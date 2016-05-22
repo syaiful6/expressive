@@ -3,6 +3,7 @@
 namespace App\Database;
 
 use Illuminate\Support\Fluent;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\ConnectionInterface;

@@ -60,7 +60,7 @@ class Task
         return !$this->coroutine->valid();
     }
 
-    function stackedCoroutine(Generator $gen)
+    public function stackedCoroutine(Generator $gen)
     {
         $stack = new SplStack();
         $exception = null;

@@ -3,7 +3,12 @@
 namespace App\Foundation;
 
 use Illuminate\Support\Str;
+use Zend\Expressive\Template\TemplateRendererInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
+/**
+ *
+ */
 function invoke($toCall, ...$args)
 {
     if (is_callable($toCall)) {
@@ -51,4 +56,40 @@ function env($key, $default = null)
     }
 
     return $value;
+}
+
+/**
+ *
+ */
+function service($name = null)
+{
+    if ($name === null) {
+        return ServiceManagerProxy::getInstance();
+    }
+
+    return ServiceManagerProxy::getInstance()->get($name);
+}
+
+/**
+ *
+ */
+function trans($id = null, $parameters = [], $domain = 'messages', $locale = null)
+{
+    if ($id === null) {
+        return service(TranslatorInterface::class);
+    }
+
+    return service(TranslatorInterface::class)->trans($id, $parameters, $domain, $locale);
+}
+
+/**
+ *
+ */
+function template($name = null, array $params = [])
+{
+    if ($name === null) {
+        return service(TemplateRendererInterface::class);
+    }
+
+    return service(TemplateRendererInterface::class)->render($name, $params);
 }

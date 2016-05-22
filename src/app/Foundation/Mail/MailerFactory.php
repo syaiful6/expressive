@@ -2,6 +2,7 @@
 
 namespace App\Foundation\Mail;
 
+use Swift_Mailer;
 use Swift_SmtpTransport as SmtpTransport;
 use Swift_MailTransport as MailTransport;
 use Swift_SendmailTransport as SendmailTransport;
@@ -20,9 +21,10 @@ class MailerFactory
             $mailConfig = $config['mail'];
 
             $transport = $this->createTransport($mailConfig);
+            $mailer = new Swift_Mailer($transport);
             $template = $container->get(Renderer::class);
 
-            return new Mailer($template, $transport);
+            return new Mailer($template, $mailer);
         }
         throw \RuntimeException('cant create mailer without configuration');
     }

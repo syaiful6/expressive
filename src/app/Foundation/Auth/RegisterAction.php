@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Auth\Actions;
+namespace App\Foundation\Auth;
 
 use App\Auth\User;
 use App\Auth\ModelBackend;

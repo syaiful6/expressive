@@ -7,6 +7,8 @@ return [
     'dependencies' => [
         'invokables' => [
             'App\Database\MigrationCreator' => 'App\Database\MigrationCreator',
+            'Illuminate\Contracts\Queue\EntityResolver' =>
+                'Illuminate\Database\Eloquent\QueueEntityResolver'
         ],
 
         'factories' => [
