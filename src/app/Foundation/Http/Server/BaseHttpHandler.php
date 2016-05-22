@@ -53,7 +53,8 @@ abstract class BaseHttpHandler
      */
     protected function setupRequest(...$args)
     {
-        $this->request = ServerRequestFactory::fromGlobals(...$args);
+        $request = ServerRequestFactory::fromGlobals(...$args);
+        $this->request = $request->withAttribute('server.file_wrapper', FileWrapper::class);
     }
 
     /**
